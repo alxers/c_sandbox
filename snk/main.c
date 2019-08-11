@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 // #include <stdlib.h>
 
@@ -48,7 +49,7 @@ void drawDesk(int map[10][10])
 struct Node {
     int x;
     int y;
-    struct node *next;
+    struct Node *next;
 
 };
 
@@ -78,28 +79,49 @@ int main(int argv, char *argc[])
     int keyA = 97;
     int keyS = 115;
 
-    struct Node head;
-    struct Node body;
+    struct Node *head;
+    struct Node *body;
 
-    head.x = 4;
-    head.y = 4;
+    // head.x = 4;
+    // head.y = 4;
 
-    arr[head.x][head.y] = 9;
+    // body.x = 5;
+    // body.y = 5;
+    // head->next = body;
 
+    head = malloc(sizeof(struct Node));
+    body = malloc(sizeof(struct Node));
+
+    head->x = 4;
+    head->y = 8;
+
+    body->x = head->x + 1;
+    body->y = head->y;
+    head->next = body;
+
+
+
+    arr[head->x][head->y] = 9;
+    arr[body->x][body->y] = 2;
+
+    // TODO: Fix positioning
     while(1)
     {
         ch = getchar();
         if (ch == keyW)
         {
             // Upper border
-            if(head.x > 1)
+            if(head->x > 1)
             {
                 // Empty current pos
-                arr[head.x][head.y] = 0;
+                arr[head->x][head->y] = 0;
+                arr[body->x][body->y] = 0;
                 
                 // Set new pos
-                head.x -= 1;
-                arr[head.x][head.y] = 9;
+                head->x -= 1;
+                body->x = head->x + 1;
+                arr[head->x][head->y] = 9;
+                arr[body->x][body->y] = 2;
             } else
             {
                 // collision
@@ -109,14 +131,17 @@ int main(int argv, char *argc[])
         if (ch == keyS)
         {
             // Upper border
-            if(head.x < 8)
+            if(head->x < 8)
             {
                 // Empty current pos
-                arr[head.x][head.y] = 0;
+                arr[head->x][head->y] = 0;
+                arr[body->x][body->y] = 0;
                 
                 // Set new pos
-                head.x += 1;
-                arr[head.x][head.y] = 9;
+                head->x += 1;
+                body->x = head->x - 1;
+                arr[head->x][head->y] = 9;
+                arr[body->x][body->y] = 2;
             } else
             {
                 // collision
@@ -126,14 +151,17 @@ int main(int argv, char *argc[])
         if (ch == keyD)
         {
             // Right border
-            if(head.y < 8)
+            if(head->y < 8)
             {
                 // Empty current pos
-                arr[head.x][head.y] = 0;
+                arr[head->x][head->y] = 0;
+                arr[body->x][body->y] = 0;
                 
                 // Set new pos
-                head.y += 1;
-                arr[head.x][head.y] = 9;
+                head->y += 1;
+                body->y = head->x - 1;
+                arr[head->x][head->y] = 9;
+                arr[body->x][body->y] = 2;
             } else
             {
                 // collision
@@ -143,14 +171,17 @@ int main(int argv, char *argc[])
         if (ch == keyA)
         {
             // Left border
-            if(head.y > 1)
+            if(head->y > 1)
             {
                 // Empty current pos
-                arr[head.x][head.y] = 0;
+                arr[head->x][head->y] = 0;
+                arr[body->x][body->y] = 0;
                 
                 // Set new pos
-                head.y -= 1;
-                arr[head.x][head.y] = 9;
+                head->y -= 1;
+                body->y = head->y + 1;
+                arr[head->x][head->y] = 9;
+                arr[body->x][body->y] = 2;
             } else
             {
                 // collision
