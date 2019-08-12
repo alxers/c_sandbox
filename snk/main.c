@@ -49,6 +49,8 @@ void drawDesk(int map[10][10])
 struct Node {
     int x;
     int y;
+    // 119-up, 100-right, 115-down, 97-left
+    int direction;
     struct Node *next;
 
 };
@@ -82,32 +84,27 @@ int main(int argv, char *argc[])
     struct Node *head;
     struct Node *body;
 
-    // head.x = 4;
-    // head.y = 4;
-
-    // body.x = 5;
-    // body.y = 5;
-    // head->next = body;
-
     head = malloc(sizeof(struct Node));
     body = malloc(sizeof(struct Node));
 
     head->x = 4;
-    head->y = 8;
+    head->y = 3;
+    head->direction = 115;
 
-    body->x = head->x + 1;
+    body->x = head->x;
     body->y = head->y;
     head->next = body;
-
 
 
     arr[head->x][head->y] = 9;
     arr[body->x][body->y] = 2;
 
-    // TODO: Fix positioning
     while(1)
     {
-        ch = getchar();
+        // ch = getchar();
+
+        ch = head->direction;
+        printf("%d ch->", ch);
         if (ch == keyW)
         {
             // Upper border
@@ -118,8 +115,9 @@ int main(int argv, char *argc[])
                 arr[body->x][body->y] = 0;
                 
                 // Set new pos
+                body->x = head->x;
+                body->y = head->y;
                 head->x -= 1;
-                body->x = head->x + 1;
                 arr[head->x][head->y] = 9;
                 arr[body->x][body->y] = 2;
             } else
@@ -130,7 +128,7 @@ int main(int argv, char *argc[])
 
         if (ch == keyS)
         {
-            // Upper border
+            // Lower border
             if(head->x < 8)
             {
                 // Empty current pos
@@ -138,8 +136,9 @@ int main(int argv, char *argc[])
                 arr[body->x][body->y] = 0;
                 
                 // Set new pos
+                body->x = head->x;
+                body->y = head->y;
                 head->x += 1;
-                body->x = head->x - 1;
                 arr[head->x][head->y] = 9;
                 arr[body->x][body->y] = 2;
             } else
@@ -156,10 +155,10 @@ int main(int argv, char *argc[])
                 // Empty current pos
                 arr[head->x][head->y] = 0;
                 arr[body->x][body->y] = 0;
-                
                 // Set new pos
+                body->x = head->x;
+                body->y = head->y;
                 head->y += 1;
-                body->y = head->x - 1;
                 arr[head->x][head->y] = 9;
                 arr[body->x][body->y] = 2;
             } else
@@ -178,8 +177,9 @@ int main(int argv, char *argc[])
                 arr[body->x][body->y] = 0;
                 
                 // Set new pos
+                body->x = head->x;
+                body->y = head->y;
                 head->y -= 1;
-                body->y = head->y + 1;
                 arr[head->x][head->y] = 9;
                 arr[body->x][body->y] = 2;
             } else
@@ -190,6 +190,11 @@ int main(int argv, char *argc[])
 
         drawDesk(arr);
         usleep(100);
+        // Update direction if key is pressed
+        // TODO: getchar() waits for the input, so we need
+        // a way to tell if key was pressed
+        // can _kbhit be used?
+        head->direction = getchar();
     }
 
     input_off();
