@@ -2,6 +2,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <stdlib.h>
+// #include <sys/select.h>
+#include <sys/ioctl.h>
+#include <stropts.h>
 
 // #include <stdlib.h>
 
@@ -33,7 +36,15 @@ void clearScreen()
   write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
 }
 
-void drawDesk(int map[10][10])
+int _kbhit()
+{
+    int STDIN = 0;
+    int bytesWaiting;
+    ioctl(STDIN, FIONREAD, &bytesWaiting);
+    return bytesWaiting;
+}
+
+void drawDesk(int map[10][10], int score)
 {
     clearScreen();
     for (int i = 0; i < 10; i++)
@@ -44,6 +55,7 @@ void drawDesk(int map[10][10])
         }
         printf("\n");
     }
+    printf("%d \nScore: ", score);
 }
 
 struct Node {
@@ -73,7 +85,8 @@ int main(int argv, char *argc[])
 
     // Prints the array that was given
     // Snake will be drawn inside arr and passed to drawDesk
-    drawDesk(arr);
+    int score = 0;
+    drawDesk(arr, score);
 
     int ch;
     int keyW = 119;
@@ -88,7 +101,7 @@ int main(int argv, char *argc[])
     body = malloc(sizeof(struct Node));
 
     head->x = 4;
-    head->y = 3;
+    head->y = 2;
     head->direction = 115;
 
     body->x = head->x;
@@ -101,10 +114,29 @@ int main(int argv, char *argc[])
 
     while(1)
     {
-        // ch = getchar();
-
         ch = head->direction;
-        printf("%d ch->", ch);
+
+        // Generating position for apples
+        int randPositionIndex = (rand() % 8) + 1;
+        // Generating random time for apple to appear
+        int randTiming = (rand() % 50);
+
+        if (randTiming % 5)
+        {
+            arr[randPositionIndex][randPositionIndex] = 5;
+        }
+        // printf("%d r->", randPositionIndex);
+
+        //TODO: Fix score (it doesn't update properly)
+        printf("%d score->", score);
+        if (head->x == randPositionIndex && head->y == randPositionIndex)
+        {
+            printf("%s\n", "Snake ate an apple");
+            // usleep(1000000);
+            arr[head->x][head->y] = 9;
+            score++;
+        }
+
         if (ch == keyW)
         {
             // Upper border
@@ -188,13 +220,15 @@ int main(int argv, char *argc[])
             }
         }
 
-        drawDesk(arr);
-        usleep(100);
+        drawDesk(arr, score);
+        // 1000000 = 1 sec
+        usleep(1000000);
+
         // Update direction if key is pressed
-        // TODO: getchar() waits for the input, so we need
-        // a way to tell if key was pressed
-        // can _kbhit be used?
-        head->direction = getchar();
+        if (_kbhit())
+        {
+            head->direction = getchar();
+        }
     }
 
     input_off();
