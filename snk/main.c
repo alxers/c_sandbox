@@ -44,7 +44,7 @@ int _kbhit()
     return bytesWaiting;
 }
 
-void drawDesk(int map[10][10], int score)
+void drawDesk(int map[10][10], int *score)
 {
     clearScreen();
     for (int i = 0; i < 10; i++)
@@ -55,7 +55,8 @@ void drawDesk(int map[10][10], int score)
         }
         printf("\n");
     }
-    printf("%d \nScore: ", score);
+    printf("%s\n", "Score: ");
+    printf("%d", score);
 }
 
 struct Node {
@@ -66,6 +67,18 @@ struct Node {
     struct Node *next;
 
 };
+
+void checkCollision(int arr[10][10], int x, int y, int *score)
+{
+    if (arr[x][y] == 5)
+    {
+        score++;
+        printf("%s\n", "Snake ate an apple");
+        printf("%d\n", score);
+        usleep(1000000);
+        arr[x][y] = 9;
+    }
+}
 
 int main(int argv, char *argc[])
 {
@@ -85,7 +98,7 @@ int main(int argv, char *argc[])
 
     // Prints the array that was given
     // Snake will be drawn inside arr and passed to drawDesk
-    int score = 0;
+    int *score = 0;
     drawDesk(arr, score);
 
     int ch;
@@ -125,17 +138,6 @@ int main(int argv, char *argc[])
         {
             arr[randPositionIndex][randPositionIndex] = 5;
         }
-        // printf("%d r->", randPositionIndex);
-
-        //TODO: Fix score (it doesn't update properly)
-        printf("%d score->", score);
-        if (head->x == randPositionIndex && head->y == randPositionIndex)
-        {
-            printf("%s\n", "Snake ate an apple");
-            // usleep(1000000);
-            arr[head->x][head->y] = 9;
-            score++;
-        }
 
         if (ch == keyW)
         {
@@ -150,6 +152,7 @@ int main(int argv, char *argc[])
                 body->x = head->x;
                 body->y = head->y;
                 head->x -= 1;
+                checkCollision(arr, head->x, head->y, score);
                 arr[head->x][head->y] = 9;
                 arr[body->x][body->y] = 2;
             } else
@@ -171,6 +174,7 @@ int main(int argv, char *argc[])
                 body->x = head->x;
                 body->y = head->y;
                 head->x += 1;
+                checkCollision(arr, head->x, head->y, score);
                 arr[head->x][head->y] = 9;
                 arr[body->x][body->y] = 2;
             } else
@@ -191,6 +195,7 @@ int main(int argv, char *argc[])
                 body->x = head->x;
                 body->y = head->y;
                 head->y += 1;
+                checkCollision(arr, head->x, head->y, score);
                 arr[head->x][head->y] = 9;
                 arr[body->x][body->y] = 2;
             } else
@@ -212,6 +217,7 @@ int main(int argv, char *argc[])
                 body->x = head->x;
                 body->y = head->y;
                 head->y -= 1;
+                checkCollision(arr, head->x, head->y, score);
                 arr[head->x][head->y] = 9;
                 arr[body->x][body->y] = 2;
             } else
@@ -222,7 +228,7 @@ int main(int argv, char *argc[])
 
         drawDesk(arr, score);
         // 1000000 = 1 sec
-        usleep(1000000);
+        usleep(500000);
 
         // Update direction if key is pressed
         if (_kbhit())
