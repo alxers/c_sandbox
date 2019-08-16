@@ -72,6 +72,7 @@ void checkCollision(int arr[10][10], int x, int y, int *score)
 {
     if (arr[x][y] == 5)
     {
+        // TODO: Add new tail each time
         *score = *score + 1;
         printf("%s\n", "Snake ate an apple");
         printf("%d\n", *score);
@@ -107,28 +108,24 @@ int main(int argv, char *argc[])
     int keyA = 97;
     int keyS = 115;
 
-    struct Node *head;
-    struct Node *body;
+    struct Node head;
+    struct Node tail;
 
-    // TODO: free memory
-    head = malloc(sizeof(struct Node));
-    body = malloc(sizeof(struct Node));
+    head.x = 4;
+    head.y = 2;
+    head.direction = 115;
 
-    head->x = 4;
-    head->y = 2;
-    head->direction = 115;
-
-    body->x = head->x;
-    body->y = head->y;
-    head->next = body;
+    tail.x = head.x;
+    tail.y = head.y;
+    head.next = &tail;
 
 
-    arr[head->x][head->y] = 9;
-    arr[body->x][body->y] = 2;
+    arr[head.x][head.y] = 9;
+    arr[tail.x][tail.y] = 2;
 
     while(1)
     {
-        ch = head->direction;
+        ch = head.direction;
 
         // Generating position for apples
         int randPositionIndex = (rand() % 8) + 1;
@@ -143,19 +140,19 @@ int main(int argv, char *argc[])
         if (ch == keyW)
         {
             // Upper border
-            if(head->x > 1)
+            if(head.x > 1)
             {
                 // Empty current pos
-                arr[head->x][head->y] = 0;
-                arr[body->x][body->y] = 0;
+                arr[head.x][head.y] = 0;
+                arr[tail.x][tail.y] = 0;
                 
                 // Set new pos
-                body->x = head->x;
-                body->y = head->y;
-                head->x -= 1;
-                checkCollision(arr, head->x, head->y, &score);
-                arr[head->x][head->y] = 9;
-                arr[body->x][body->y] = 2;
+                tail.x = head.x;
+                tail.y = head.y;
+                head.x -= 1;
+                checkCollision(arr, head.x, head.y, &score);
+                arr[head.x][head.y] = 9;
+                arr[tail.x][tail.y] = 2;
             } else
             {
                 // collision
@@ -165,19 +162,19 @@ int main(int argv, char *argc[])
         if (ch == keyS)
         {
             // Lower border
-            if(head->x < 8)
+            if(head.x < 8)
             {
                 // Empty current pos
-                arr[head->x][head->y] = 0;
-                arr[body->x][body->y] = 0;
+                arr[head.x][head.y] = 0;
+                arr[tail.x][tail.y] = 0;
                 
                 // Set new pos
-                body->x = head->x;
-                body->y = head->y;
-                head->x += 1;
-                checkCollision(arr, head->x, head->y, &score);
-                arr[head->x][head->y] = 9;
-                arr[body->x][body->y] = 2;
+                tail.x = head.x;
+                tail.y = head.y;
+                head.x += 1;
+                checkCollision(arr, head.x, head.y, &score);
+                arr[head.x][head.y] = 9;
+                arr[tail.x][tail.y] = 2;
             } else
             {
                 // collision
@@ -187,18 +184,18 @@ int main(int argv, char *argc[])
         if (ch == keyD)
         {
             // Right border
-            if(head->y < 8)
+            if(head.y < 8)
             {
                 // Empty current pos
-                arr[head->x][head->y] = 0;
-                arr[body->x][body->y] = 0;
+                arr[head.x][head.y] = 0;
+                arr[tail.x][tail.y] = 0;
                 // Set new pos
-                body->x = head->x;
-                body->y = head->y;
-                head->y += 1;
-                checkCollision(arr, head->x, head->y, &score);
-                arr[head->x][head->y] = 9;
-                arr[body->x][body->y] = 2;
+                tail.x = head.x;
+                tail.y = head.y;
+                head.y += 1;
+                checkCollision(arr, head.x, head.y, &score);
+                arr[head.x][head.y] = 9;
+                arr[tail.x][tail.y] = 2;
             } else
             {
                 // collision
@@ -208,19 +205,19 @@ int main(int argv, char *argc[])
         if (ch == keyA)
         {
             // Left border
-            if(head->y > 1)
+            if(head.y > 1)
             {
                 // Empty current pos
-                arr[head->x][head->y] = 0;
-                arr[body->x][body->y] = 0;
+                arr[head.x][head.y] = 0;
+                arr[tail.x][tail.y] = 0;
                 
                 // Set new pos
-                body->x = head->x;
-                body->y = head->y;
-                head->y -= 1;
-                checkCollision(arr, head->x, head->y, &score);
-                arr[head->x][head->y] = 9;
-                arr[body->x][body->y] = 2;
+                tail.x = head.x;
+                tail.y = head.y;
+                head.y -= 1;
+                checkCollision(arr, head.x, head.y, &score);
+                arr[head.x][head.y] = 9;
+                arr[tail.x][tail.y] = 2;
             } else
             {
                 // collision
@@ -234,7 +231,7 @@ int main(int argv, char *argc[])
         // Update direction if key is pressed
         if (_kbhit())
         {
-            head->direction = getchar();
+            head.direction = getchar();
         }
     }
 
