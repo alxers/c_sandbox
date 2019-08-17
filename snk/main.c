@@ -8,6 +8,9 @@
 
 // #include <stdlib.h>
 
+#define SNAKE_LENGTH 10
+#define UID 987654321
+
 struct termios terminalSettings;
 
 void input_on()
@@ -64,6 +67,9 @@ struct Node {
     int y;
     // 119-up, 100-right, 115-down, 97-left
     int direction;
+    // TODO: find better way of adding nodes to the array
+    // currently this used to check if node in an array.
+    int id;
     struct Node *next;
 
 };
@@ -78,6 +84,23 @@ void checkCollision(int arr[10][10], int x, int y, int *score)
         printf("%d\n", *score);
         // usleep(1000000);
         arr[x][y] = 9;
+    }
+}
+
+// TODO: Fix updating position.
+void updatePosition(struct Node *snake)
+{
+    for(int i = SNAKE_LENGTH; i > 0; i--)
+    {
+
+        if(snake[i].id == UID)
+        {
+            printf("%s\n", "TEST");
+            printf("%d\n", i);
+            snake[i].x = snake[i-1].x;
+            snake[i].y = snake[i-1].y;
+
+        }
     }
 }
 
@@ -97,6 +120,8 @@ int main(int argv, char *argc[])
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     };
 
+    struct Node snake[SNAKE_LENGTH];
+
     // Prints the array that was given
     // Snake will be drawn inside arr and passed to drawDesk
     int score = 0;
@@ -114,14 +139,19 @@ int main(int argv, char *argc[])
     head.x = 4;
     head.y = 2;
     head.direction = 115;
+    head.id = UID;
 
     tail.x = head.x;
     tail.y = head.y;
+    tail.id = UID;
     head.next = &tail;
 
 
     arr[head.x][head.y] = 9;
     arr[tail.x][tail.y] = 2;
+
+    snake[0] = head;
+    snake[1] = tail;
 
     while(1)
     {
@@ -169,8 +199,9 @@ int main(int argv, char *argc[])
                 arr[tail.x][tail.y] = 0;
                 
                 // Set new pos
-                tail.x = head.x;
-                tail.y = head.y;
+                // tail.x = head.x;
+                // tail.y = head.y;
+                updatePosition(snake);
                 head.x += 1;
                 checkCollision(arr, head.x, head.y, &score);
                 arr[head.x][head.y] = 9;
@@ -189,9 +220,9 @@ int main(int argv, char *argc[])
                 // Empty current pos
                 arr[head.x][head.y] = 0;
                 arr[tail.x][tail.y] = 0;
+                
                 // Set new pos
-                tail.x = head.x;
-                tail.y = head.y;
+                updatePosition(snake);
                 head.y += 1;
                 checkCollision(arr, head.x, head.y, &score);
                 arr[head.x][head.y] = 9;
@@ -212,8 +243,7 @@ int main(int argv, char *argc[])
                 arr[tail.x][tail.y] = 0;
                 
                 // Set new pos
-                tail.x = head.x;
-                tail.y = head.y;
+                updatePosition(snake);
                 head.y -= 1;
                 checkCollision(arr, head.x, head.y, &score);
                 arr[head.x][head.y] = 9;
