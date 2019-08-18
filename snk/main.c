@@ -6,10 +6,6 @@
 #include <sys/ioctl.h>
 #include <stropts.h>
 
-// #include <stdlib.h>
-
-#define SNAKE_LENGTH 10
-#define UID 987654321
 
 struct termios terminalSettings;
 
@@ -67,10 +63,8 @@ struct Node {
     int y;
     // 119-up, 100-right, 115-down, 97-left
     int direction;
-    // TODO: find better way of adding nodes to the array
-    // currently this used to check if node in an array.
-    int id;
     struct Node *next;
+    struct Node *previous;
 
 };
 
@@ -87,21 +81,18 @@ void checkCollision(int arr[10][10], int x, int y, int *score)
     }
 }
 
-// TODO: Fix updating position.
-void updatePosition(struct Node *snake)
+void updatePosition(struct Node *first, struct Node *second)
 {
-    for(int i = SNAKE_LENGTH; i > 0; i--)
+    if(!(*second).next)
     {
+        (*second).x = (*first).x;
+        (*second).y = (*first).y;
 
-        if(snake[i].id == UID)
-        {
-            printf("%s\n", "TEST");
-            printf("%d\n", i);
-            snake[i].x = snake[i-1].x;
-            snake[i].y = snake[i-1].y;
-
-        }
+        return;
+    } else {
+        updatePosition((*first).next, (*second).next);
     }
+
 }
 
 int main(int argv, char *argc[])
@@ -120,8 +111,6 @@ int main(int argv, char *argc[])
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     };
 
-    struct Node snake[SNAKE_LENGTH];
-
     // Prints the array that was given
     // Snake will be drawn inside arr and passed to drawDesk
     int score = 0;
@@ -138,33 +127,32 @@ int main(int argv, char *argc[])
 
     head.x = 4;
     head.y = 2;
+    head.previous = NULL;
     head.direction = 115;
-    head.id = UID;
 
     tail.x = head.x;
     tail.y = head.y;
-    tail.id = UID;
-    head.next = &tail;
+    tail.previous = &head;
+    tail.next = NULL;
 
+    head.next = &tail;
 
     arr[head.x][head.y] = 9;
     arr[tail.x][tail.y] = 2;
-
-    snake[0] = head;
-    snake[1] = tail;
 
     while(1)
     {
         ch = head.direction;
 
         // Generating position for apples
-        int randPositionIndex = (rand() % 8) + 1;
+        int firstRandPositionIndex = (rand() % 8) + 1;
+        int secondRandPositionIndex = (rand() % 8) + 1;
         // Generating random time for apple to appear
         int randTiming = (rand() % 50);
 
         if (randTiming % 5)
         {
-            arr[randPositionIndex][randPositionIndex] = 5;
+            arr[firstRandPositionIndex][secondRandPositionIndex] = 5;
         }
 
         if (ch == keyW)
@@ -201,7 +189,7 @@ int main(int argv, char *argc[])
                 // Set new pos
                 // tail.x = head.x;
                 // tail.y = head.y;
-                updatePosition(snake);
+                updatePosition(&head, &tail);
                 head.x += 1;
                 checkCollision(arr, head.x, head.y, &score);
                 arr[head.x][head.y] = 9;
@@ -222,7 +210,7 @@ int main(int argv, char *argc[])
                 arr[tail.x][tail.y] = 0;
                 
                 // Set new pos
-                updatePosition(snake);
+                updatePosition(&head, &tail);
                 head.y += 1;
                 checkCollision(arr, head.x, head.y, &score);
                 arr[head.x][head.y] = 9;
@@ -243,7 +231,7 @@ int main(int argv, char *argc[])
                 arr[tail.x][tail.y] = 0;
                 
                 // Set new pos
-                updatePosition(snake);
+                updatePosition(&head, &tail);
                 head.y -= 1;
                 checkCollision(arr, head.x, head.y, &score);
                 arr[head.x][head.y] = 9;
