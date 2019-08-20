@@ -63,7 +63,7 @@ struct Node {
     int y;
     // 119-up, 100-right, 115-down, 97-left
     int direction;
-    struct Node *next;
+    struct Node *previous;
 
 };
 
@@ -86,44 +86,68 @@ int ateAnApple(int arr[10][10], int x, int y, int *score)
 
 void addNewNode(struct Node *node)
 {
-    struct Node tmpNode = *node;
-    struct Node newNode;
-    while(tmpNode.next)
-    {
-        tmpNode = *(tmpNode.next);
-    }
-    newNode.x = tmpNode.x;
-    newNode.y = tmpNode.y;
-    newNode.next = NULL;
-    newNode.direction = 888;
-    tmpNode.next = &newNode;
-    printf("%s\n", "TEST");
-    printf("%d\n", newNode.direction);
-    usleep(1000000);
+    // struct Node tmpNode = *node;
+    // // TODO: Fix adding new node
+    // struct Node newNode;
+    // while(node->next)
+    // {
+    //     printf("%s\n", "TEST");
+    //     printf("%d\n", node->direction);
+    //     usleep(1000000);
+    //     node = (*node).next;
+    // }
+    // newNode.x = node->x;
+    // newNode.y = node->y;
+    // newNode.next = NULL;
+    // newNode.direction = 888;
+    // node->next = &newNode;
+
+    // if(!(*node).next)
+    // {
+    //     struct Node newNode;
+    //     newNode.x = (*node).x;
+    //     newNode.y = (*node).y;
+    //     newNode.next = NULL;
+    //     (*node).next = &newNode;
+
+    //     // printf("%s\n", "TEST");
+    //     // printf("%d\n", (*node).direction);
+
+    //     return newNode;
+    // } else {
+    //     addNewNode((*node).next);
+    // }
 }
 
 void drawSnake(struct Node *node, int arr[10][10], int identifier)
 {
     struct Node tmpNode = *node;
-    while(tmpNode.next)
+    while(tmpNode.previous)
     {
         arr[tmpNode.x][tmpNode.y] = identifier;
-        tmpNode = *(tmpNode.next);
+        tmpNode = *(tmpNode.previous);
     }
     // Do this one more time for the last piece
     arr[tmpNode.x][tmpNode.y] = identifier;
 }
 
-void updatePosition(struct Node *first, struct Node *second)
+void updatePosition(struct Node *last)
 {
-    if(!(*second).next)
-    {
-        (*second).x = (*first).x;
-        (*second).y = (*first).y;
+    // if(!(*second).next)
+    // {
+    //     (*second).x = (*first).x;
+    //     (*second).y = (*first).y;
+    // } else {
 
-        return;
-    } else {
-        updatePosition((*first).next, (*second).next);
+    //     updatePosition((*first).next, (*second).next);
+    // }`
+    // TODO: Iterate over all nodes from last to first
+    // update x and y coordinates
+    while((*last).previous)
+    {
+        (*last).x = (*last).previous->x;
+        (*last).y = (*last).previous->y;
+        *last = *(last->previous);
     }
 
 }
@@ -156,22 +180,29 @@ int main(int argv, char *argc[])
     int keyS = 115;
 
     struct Node head;
-    struct Node tail;
+    struct Node tail1;
+    struct Node tail2;
 
     head.x = 4;
     head.y = 2;
     head.direction = 115;
+    head.previous = NULL;
 
-    tail.x = head.x;
-    tail.y = head.y;
-    tail.next = NULL;
+    tail1.x = head.x;
+    tail1.y = head.y;
+    // tail1.next = &tail2;
+    tail1.previous = &head;
     // remove
-    tail.direction = 999;
+    tail1.direction = 999;
+    tail2.direction = 888;
 
-    head.next = &tail;
+    tail2.x = tail1.x - 1;
+    tail2.y = tail1.y;
+    tail2.previous = &tail1;
 
-    arr[head.x][head.y] = 9;
-    arr[tail.x][tail.y] = 2;
+    // arr[head.x][head.y] = 9;
+    // arr[tail1.x][tail1.y] = 2;
+    // arr[tail2.x][tail2.y] = 2;
 
     while(1)
     {
@@ -194,17 +225,17 @@ int main(int argv, char *argc[])
             if(head.x > 1)
             {
                 // Empty current pos
-                drawSnake(&head, arr, 0);
+                drawSnake(&tail2, arr, 0);
                 
                 // Set new pos
-                updatePosition(&head, head.next);
                 head.x -= 1;
+                updatePosition(&tail2);
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    addNewNode(&head);
+                    addNewNode(&tail2);
                 }
-                drawSnake(&head, arr, 9);
+                drawSnake(&tail2, arr, 9);
             } else
             {
                 // collision
@@ -217,19 +248,17 @@ int main(int argv, char *argc[])
             if(head.x < 8)
             {
                 // Empty current pos
-                drawSnake(&head, arr, 0);
+                drawSnake(&tail2, arr, 0);
                 
                 // Set new pos
-                // tail.x = head.x;
-                // tail.y = head.y;
-                updatePosition(&head, head.next);
                 head.x += 1;
+                updatePosition(&tail2);
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    addNewNode(&head);
+                    addNewNode(&tail2);
                 }
-                drawSnake(&head, arr, 9);
+                drawSnake(&tail2, arr, 9);
             } else
             {
                 // collision
@@ -242,17 +271,17 @@ int main(int argv, char *argc[])
             if(head.y < 8)
             {
                 // Empty current pos
-                drawSnake(&head, arr, 0);
+                drawSnake(&tail2, arr, 0);
                 
                 // Set new pos
-                updatePosition(&head, head.next);
                 head.y += 1;
+                updatePosition(&tail2);
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    addNewNode(&head);
+                    addNewNode(&tail2);
                 }
-                drawSnake(&head, arr, 9);
+                drawSnake(&tail2, arr, 9);
             } else
             {
                 // collision
@@ -265,17 +294,17 @@ int main(int argv, char *argc[])
             if(head.y > 1)
             {
                 // Empty current pos
-                drawSnake(&head, arr, 0);
+                drawSnake(&tail2, arr, 0);
                 
                 // Set new pos
-                updatePosition(&head, head.next);
                 head.y -= 1;
+                updatePosition(&tail2);
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    addNewNode(&head);
+                    addNewNode(&tail2);
                 }
-                drawSnake(&head, arr, 9);
+                drawSnake(&tail2, arr, 9);
             } else
             {
                 // collision
