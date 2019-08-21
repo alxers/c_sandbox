@@ -131,23 +131,17 @@ void drawSnake(struct Node *node, int arr[10][10], int identifier)
     arr[tmpNode.x][tmpNode.y] = identifier;
 }
 
-void updatePosition(struct Node *last)
+void updatePosition(struct Node *last, struct Node *previous)
 {
-    // if(!(*second).next)
-    // {
-    //     (*second).x = (*first).x;
-    //     (*second).y = (*first).y;
-    // } else {
-
-    //     updatePosition((*first).next, (*second).next);
-    // }`
-    // TODO: Iterate over all nodes from last to first
-    // update x and y coordinates
-    while((*last).previous)
+    if(!(*last).previous)
     {
-        (*last).x = (*last).previous->x;
-        (*last).y = (*last).previous->y;
-        *last = *(last->previous);
+        // (*last).x = (*previous).x;
+        // (*last).y = (*previous).y;
+        return;
+    } else {
+        (*last).x = (*previous).x;
+        (*last).y = (*previous).y;
+        updatePosition((*last).previous, (*previous).previous);
     }
 
 }
@@ -188,7 +182,7 @@ int main(int argv, char *argc[])
     head.direction = 115;
     head.previous = NULL;
 
-    tail1.x = head.x;
+    tail1.x = head.x -1;
     tail1.y = head.y;
     // tail1.next = &tail2;
     tail1.previous = &head;
@@ -199,10 +193,6 @@ int main(int argv, char *argc[])
     tail2.x = tail1.x - 1;
     tail2.y = tail1.y;
     tail2.previous = &tail1;
-
-    // arr[head.x][head.y] = 9;
-    // arr[tail1.x][tail1.y] = 2;
-    // arr[tail2.x][tail2.y] = 2;
 
     while(1)
     {
@@ -228,8 +218,8 @@ int main(int argv, char *argc[])
                 drawSnake(&tail2, arr, 0);
                 
                 // Set new pos
+                updatePosition(&tail2, tail2.previous);
                 head.x -= 1;
-                updatePosition(&tail2);
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
@@ -251,8 +241,8 @@ int main(int argv, char *argc[])
                 drawSnake(&tail2, arr, 0);
                 
                 // Set new pos
+                updatePosition(&tail2, tail2.previous);
                 head.x += 1;
-                updatePosition(&tail2);
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
@@ -274,8 +264,8 @@ int main(int argv, char *argc[])
                 drawSnake(&tail2, arr, 0);
                 
                 // Set new pos
+                updatePosition(&tail2, tail2.previous);
                 head.y += 1;
-                updatePosition(&tail2);
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
@@ -297,8 +287,8 @@ int main(int argv, char *argc[])
                 drawSnake(&tail2, arr, 0);
                 
                 // Set new pos
+                updatePosition(&tail2, tail2.previous);
                 head.y -= 1;
-                updatePosition(&tail2);
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
