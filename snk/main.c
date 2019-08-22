@@ -6,6 +6,11 @@
 #include <sys/ioctl.h>
 #include <stropts.h>
 
+#define keyW 119
+#define keyD 100
+#define keyA 97
+#define keyS 115
+
 
 struct termios terminalSettings;
 
@@ -84,39 +89,32 @@ int ateAnApple(int arr[10][10], int x, int y, int *score)
     return 0;
 }
 
-void addNewNode(struct Node *node)
+// TODO: fix segfault on adding new node
+struct Node addNewNode(struct Node *node)
 {
-    // struct Node tmpNode = *node;
-    // // TODO: Fix adding new node
-    // struct Node newNode;
-    // while(node->next)
-    // {
-    //     printf("%s\n", "TEST");
-    //     printf("%d\n", node->direction);
-    //     usleep(1000000);
-    //     node = (*node).next;
-    // }
-    // newNode.x = node->x;
-    // newNode.y = node->y;
-    // newNode.next = NULL;
-    // newNode.direction = 888;
-    // node->next = &newNode;
+    struct Node newNode;
+    newNode.previous = node;
 
-    // if(!(*node).next)
-    // {
-    //     struct Node newNode;
-    //     newNode.x = (*node).x;
-    //     newNode.y = (*node).y;
-    //     newNode.next = NULL;
-    //     (*node).next = &newNode;
+    switch((*node).direction)
+    {
+        case keyW :
+            newNode.x = node->x + 1;
+            break;
 
-    //     // printf("%s\n", "TEST");
-    //     // printf("%d\n", (*node).direction);
+        case keyD :
+            newNode.y = node->y - 1;
+            break;
 
-    //     return newNode;
-    // } else {
-    //     addNewNode((*node).next);
-    // }
+        case keyA :
+            newNode.x = node->x -1;
+            break;
+
+        case keyS :
+            newNode.y = node->y + 1;
+            break;
+    }
+
+    return newNode;
 }
 
 void drawSnake(struct Node *node, int arr[10][10], int identifier)
@@ -135,12 +133,11 @@ void updatePosition(struct Node *last, struct Node *previous)
 {
     if(!(*last).previous)
     {
-        // (*last).x = (*previous).x;
-        // (*last).y = (*previous).y;
-        return;
+
     } else {
         (*last).x = (*previous).x;
         (*last).y = (*previous).y;
+        (*last).direction = (*previous).direction;
         updatePosition((*last).previous, (*previous).previous);
     }
 
@@ -168,10 +165,10 @@ int main(int argv, char *argc[])
     drawDesk(arr, &score);
 
     int ch;
-    int keyW = 119;
-    int keyD = 100;
-    int keyA = 97;
-    int keyS = 115;
+    // int keyW = 119;
+    // int keyD = 100;
+    // int keyA = 97;
+    // int keyS = 115;
 
     struct Node head;
     struct Node tail1;
@@ -184,14 +181,12 @@ int main(int argv, char *argc[])
 
     tail1.x = head.x -1;
     tail1.y = head.y;
-    // tail1.next = &tail2;
+    tail1.direction = head.direction;
     tail1.previous = &head;
-    // remove
-    tail1.direction = 999;
-    tail2.direction = 888;
 
     tail2.x = tail1.x - 1;
     tail2.y = tail1.y;
+    tail2.direction = tail1.direction;
     tail2.previous = &tail1;
 
     while(1)
@@ -223,7 +218,7 @@ int main(int argv, char *argc[])
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    addNewNode(&tail2);
+                    tail2 = addNewNode(&tail2);
                 }
                 drawSnake(&tail2, arr, 9);
             } else
@@ -246,7 +241,7 @@ int main(int argv, char *argc[])
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    addNewNode(&tail2);
+                    tail2 = addNewNode(&tail2);
                 }
                 drawSnake(&tail2, arr, 9);
             } else
@@ -269,7 +264,7 @@ int main(int argv, char *argc[])
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    addNewNode(&tail2);
+                    tail2 = addNewNode(&tail2);
                 }
                 drawSnake(&tail2, arr, 9);
             } else
@@ -292,7 +287,7 @@ int main(int argv, char *argc[])
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    addNewNode(&tail2);
+                    tail2 = addNewNode(&tail2);
                 }
                 drawSnake(&tail2, arr, 9);
             } else
