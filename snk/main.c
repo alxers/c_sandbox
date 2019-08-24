@@ -97,23 +97,27 @@ struct Node addNewNode(struct Node *node)
 
     switch((*node).direction)
     {
-        case keyW :
+        case keyW:
             newNode.x = node->x + 1;
+            newNode.y = node->y;
             break;
 
-        case keyD :
+        case keyD:
+            newNode.x = node->x;
             newNode.y = node->y - 1;
             break;
 
-        case keyA :
+        case keyA:
             newNode.x = node->x -1;
+            newNode.y = node->y;
             break;
 
-        case keyS :
+        case keyS:
+            newNode.x = node->x;
             newNode.y = node->y + 1;
             break;
     }
-
+    newNode.direction = node->direction;
     return newNode;
 }
 
@@ -141,6 +145,22 @@ void updatePosition(struct Node *last, struct Node *previous)
         updatePosition((*last).previous, (*previous).previous);
     }
 
+}
+
+void copyStruct(struct Node *from, struct Node *to)
+{
+    while(from != NULL)
+    {
+        (*to).x = (*from).x;
+        (*to).y = (*from).y;
+        (*to).direction = (*from).direction;
+
+        if((*to).previous != NULL)
+        {
+            (*to).previous = to;
+            (*from).previous = from;
+        }
+    }
 }
 
 int main(int argv, char *argc[])
@@ -189,6 +209,8 @@ int main(int argv, char *argc[])
     tail2.direction = tail1.direction;
     tail2.previous = &tail1;
 
+    struct Node newTail;
+
     while(1)
     {
         ch = head.direction;
@@ -218,7 +240,10 @@ int main(int argv, char *argc[])
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    tail2 = addNewNode(&tail2);
+                    // tail2 = addNewNode(&tail2);
+                    newTail = addNewNode(&tail2);
+                    // tail2 = newTail;
+                    copyStruct(&newTail, &tail2);
                 }
                 drawSnake(&tail2, arr, 9);
             } else
@@ -241,7 +266,10 @@ int main(int argv, char *argc[])
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    tail2 = addNewNode(&tail2);
+                    // tail2 = addNewNode(&tail2);
+                    newTail = addNewNode(&tail2);
+                    newTail.previous = &tail2;
+                    tail2 = newTail;
                 }
                 drawSnake(&tail2, arr, 9);
             } else
@@ -264,7 +292,10 @@ int main(int argv, char *argc[])
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    tail2 = addNewNode(&tail2);
+                    // tail2 = addNewNode(&tail2);
+                    newTail = addNewNode(&tail2);
+                    newTail.previous = &tail2;
+                    tail2 = newTail;
                 }
                 drawSnake(&tail2, arr, 9);
             } else
@@ -287,7 +318,10 @@ int main(int argv, char *argc[])
 
                 if (ateAnApple(arr, head.x, head.y, &score))
                 {
-                    tail2 = addNewNode(&tail2);
+                    // tail2 = addNewNode(&tail2);
+                    newTail = addNewNode(&tail2);
+                    newTail.previous = &tail2;
+                    tail2 = newTail;
                 }
                 drawSnake(&tail2, arr, 9);
             } else
