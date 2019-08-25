@@ -11,6 +11,8 @@
 #define keyA 97
 #define keyS 115
 
+#define SNAKE_LENGTH 100
+
 
 struct termios terminalSettings;
 
@@ -68,8 +70,6 @@ struct Node {
     int y;
     // 119-up, 100-right, 115-down, 97-left
     int direction;
-    struct Node *previous;
-
 };
 
 int ateAnApple(int arr[10][10], int x, int y, int *score)
@@ -90,77 +90,76 @@ int ateAnApple(int arr[10][10], int x, int y, int *score)
 }
 
 // TODO: fix segfault on adding new node
-struct Node* addNewNode(struct Node *node)
+void addNewNode(struct Node *node)
 {
-    struct Node* newNode;
-    (*newNode).previous = node;
+    // struct Node* newNode;
+    // (*newNode).previous = node;
 
-    switch((*node).direction)
-    {
-        case keyW:
-            (*newNode).x = node->x + 1;
-            (*newNode).y = node->y;
-            break;
+    // switch((*node).direction)
+    // {
+    //     case keyW:
+    //         (*newNode).x = node->x + 1;
+    //         (*newNode).y = node->y;
+    //         break;
 
-        case keyD:
-            (*newNode).x = node->x;
-            (*newNode).y = node->y - 1;
-            break;
+    //     case keyD:
+    //         (*newNode).x = node->x;
+    //         (*newNode).y = node->y - 1;
+    //         break;
 
-        case keyA:
-            (*newNode).x = node->x -1;
-            (*newNode).y = node->y;
-            break;
+    //     case keyA:
+    //         (*newNode).x = node->x -1;
+    //         (*newNode).y = node->y;
+    //         break;
 
-        case keyS:
-            (*newNode).x = node->x;
-            (*newNode).y = node->y + 1;
-            break;
-    }
-    (*newNode).direction = node->direction;
-    return newNode;
+    //     case keyS:
+    //         (*newNode).x = node->x;
+    //         (*newNode).y = node->y + 1;
+    //         break;
+    // }
+    // (*newNode).direction = node->direction;
+    // return newNode;
 }
 
-void drawSnake(struct Node *node, int arr[10][10], int identifier)
+void drawSnake(struct Node snake[], int arr[10][10], int identifier)
 {
-    struct Node tmpNode = *node;
-    while(tmpNode.previous)
+    for(int i = 0; i < SNAKE_LENGTH - 1; i++)
     {
-        arr[tmpNode.x][tmpNode.y] = identifier;
-        tmpNode = *(tmpNode.previous);
-    }
-    // Do this one more time for the last piece
-    arr[tmpNode.x][tmpNode.y] = identifier;
-}
-
-void updatePosition(struct Node *last, struct Node *previous)
-{
-    if(!(*last).previous)
-    {
-
-    } else {
-        (*last).x = (*previous).x;
-        (*last).y = (*previous).y;
-        (*last).direction = (*previous).direction;
-        updatePosition((*last).previous, (*previous).previous);
-    }
-
-}
-
-void copyStruct(struct Node *from, struct Node *to)
-{
-    while(from != NULL)
-    {
-        (*to).x = (*from).x;
-        (*to).y = (*from).y;
-        (*to).direction = (*from).direction;
-
-        if((*to).previous != NULL)
+        // Snake array contains actual nodes and empty nodes
+        // All the empty nodes have x, y and direction set to 0
+        // Here we check if it's an actual node (direction can't be 0 in the actual node)
+        if(snake[i].direction)
         {
-            (*to).previous = to;
-            (*from).previous = from;
+            arr[snake[i].x][snake[i].y] = identifier;
         }
     }
+}
+
+void updatePosition(struct Node snake[])
+{
+    // if(!(*last).previous)
+    // {
+
+    // } else {
+    //     (*last).x = (*previous).x;
+    //     (*last).y = (*previous).y;
+    //     (*last).direction = (*previous).direction;
+    //     updatePosition((*last).previous, (*previous).previous);
+    // }
+
+
+    // Do not use i >= 0, we don't need to update 'head' node with out of snake array
+    // boundaries values (f.e. snake[-1] is {x = 1, y = 1, direction = 1} sometimes)
+    for(int i = SNAKE_LENGTH; i > 0; i--)
+    {
+        if(snake[i].direction && snake[i-1].direction)
+        {
+            snake[i].x = snake[i-1].x;
+            snake[i].y = snake[i-1].y;
+            snake[i].direction = snake[i-1].direction;
+        }
+    }
+
 }
 
 int main(int argv, char *argc[])
@@ -182,13 +181,10 @@ int main(int argv, char *argc[])
     // Prints the array that was given
     // Snake will be drawn inside arr and passed to drawDesk
     int score = 0;
+
     drawDesk(arr, &score);
 
     int ch;
-    // int keyW = 119;
-    // int keyD = 100;
-    // int keyA = 97;
-    // int keyS = 115;
 
     struct Node head;
     struct Node tail1;
@@ -197,20 +193,19 @@ int main(int argv, char *argc[])
     head.x = 4;
     head.y = 2;
     head.direction = 115;
-    head.previous = NULL;
 
     tail1.x = head.x -1;
     tail1.y = head.y;
     tail1.direction = head.direction;
-    tail1.previous = &head;
 
     tail2.x = tail1.x - 1;
     tail2.y = tail1.y;
     tail2.direction = tail1.direction;
-    tail2.previous = &tail1;
 
-    struct Node newTail;
-    struct Node *tail = &tail2;
+    struct Node snake[SNAKE_LENGTH] = { 0 };
+    snake[0] = head;
+    snake[1] = tail1;
+    snake[2] = tail2;
 
     while(1)
     {
@@ -230,22 +225,20 @@ int main(int argv, char *argc[])
         if (ch == keyW)
         {
             // Upper border
-            if(head.x > 1)
+            if(snake[0].x > 1)
             {
                 // Empty current pos
-                drawSnake(tail, arr, 0);
+                drawSnake(snake, arr, 0);
                 
                 // Set new pos
-                updatePosition(tail, (*tail).previous);
-                head.x -= 1;
+                updatePosition(snake);
+                snake[0].x -= 1;
 
-                if (ateAnApple(arr, head.x, head.y, &score))
+                if (ateAnApple(arr, snake[0].x, snake[0].y, &score))
                 {
-                    // newTail = addNewNode(tail);
-                    // tail = &newTail;
-                    tail = addNewNode(tail);
+                    addNewNode(snake);
                 }
-                drawSnake(tail, arr, 9);
+                drawSnake(snake, arr, 9);
             } else
             {
                 // collision
@@ -255,20 +248,20 @@ int main(int argv, char *argc[])
         if (ch == keyS)
         {
             // Lower border
-            if(head.x < 8)
+            if(snake[0].x < 8)
             {
                 // Empty current pos
-                drawSnake(tail, arr, 0);
+                drawSnake(snake, arr, 0);
                 
                 // Set new pos
-                updatePosition(tail, (*tail).previous);
-                head.x += 1;
+                updatePosition(snake);
+                snake[0].x += 1;
 
-                if (ateAnApple(arr, head.x, head.y, &score))
+                if (ateAnApple(arr, snake[0].x, snake[0].y, &score))
                 {
-                    tail = addNewNode(tail, &newTail);
+                    addNewNode(snake);
                 }
-                drawSnake(tail, arr, 9);
+                drawSnake(snake, arr, 9);
             } else
             {
                 // collision
@@ -278,20 +271,20 @@ int main(int argv, char *argc[])
         if (ch == keyD)
         {
             // Right border
-            if(head.y < 8)
+            if(snake[0].y < 8)
             {
                 // Empty current pos
-                drawSnake(tail, arr, 0);
+                drawSnake(snake, arr, 0);
                 
                 // Set new pos
-                updatePosition(tail, (*tail).previous);
-                head.y += 1;
+                updatePosition(snake);
+                snake[0].y += 1;
 
-                if (ateAnApple(arr, head.x, head.y, &score))
+                if (ateAnApple(arr, snake[0].x, snake[0].y, &score))
                 {
-                    tail = addNewNode(tail);
+                    addNewNode(snake);
                 }
-                drawSnake(tail, arr, 9);
+                drawSnake(snake, arr, 9);
             } else
             {
                 // collision
@@ -301,20 +294,20 @@ int main(int argv, char *argc[])
         if (ch == keyA)
         {
             // Left border
-            if(head.y > 1)
+            if(snake[0].y > 1)
             {
                 // Empty current pos
-                drawSnake(tail, arr, 0);
+                drawSnake(snake, arr, 0);
                 
                 // Set new pos
-                updatePosition(tail, (*tail).previous);
-                head.y -= 1;
+                updatePosition(snake);
+                snake[0].y -= 1;
 
-                if (ateAnApple(arr, head.x, head.y, &score))
+                if (ateAnApple(arr, snake[0].x, snake[0].y, &score))
                 {
-                    tail = addNewNode(tail);
+                    addNewNode(snake);
                 }
-                drawSnake(tail, arr, 9);
+                drawSnake(snake, arr, 9);
             } else
             {
                 // collision
