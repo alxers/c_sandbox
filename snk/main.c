@@ -90,35 +90,45 @@ int ateAnApple(int arr[10][10], int x, int y, int *score)
 }
 
 // TODO: fix segfault on adding new node
-void addNewNode(struct Node *node)
+void addNewNode(struct Node snake[])
 {
-    // struct Node* newNode;
-    // (*newNode).previous = node;
+    struct Node newNode;
+    int x, y, direction, currentLastNodePosition;
+    for(int i = 0; i < SNAKE_LENGTH - 1; i++)
+    {
+        if(!snake[i+1].direction)
+        {
+            x = snake[i].x;
+            y = snake[i].y;
+            direction = snake[i].direction;
+            currentLastNodePosition = i;
+            break;
+        }
+    }
+    switch(direction)
+    {
+        case keyW:
+            newNode.x = x + 1;
+            newNode.y = y;
+            break;
 
-    // switch((*node).direction)
-    // {
-    //     case keyW:
-    //         (*newNode).x = node->x + 1;
-    //         (*newNode).y = node->y;
-    //         break;
+        case keyD:
+            newNode.x = x;
+            newNode.y = y - 1;
+            break;
 
-    //     case keyD:
-    //         (*newNode).x = node->x;
-    //         (*newNode).y = node->y - 1;
-    //         break;
+        case keyA:
+            newNode.x = x -1;
+            newNode.y = y;
+            break;
 
-    //     case keyA:
-    //         (*newNode).x = node->x -1;
-    //         (*newNode).y = node->y;
-    //         break;
+        case keyS:
+            newNode.x = x;
+            newNode.y = y + 1;
+            break;
+    }
+    snake[currentLastNodePosition + 1] = newNode;
 
-    //     case keyS:
-    //         (*newNode).x = node->x;
-    //         (*newNode).y = node->y + 1;
-    //         break;
-    // }
-    // (*newNode).direction = node->direction;
-    // return newNode;
 }
 
 void drawSnake(struct Node snake[], int arr[10][10], int identifier)
