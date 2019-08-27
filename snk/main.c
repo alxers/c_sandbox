@@ -76,11 +76,9 @@ int ateAnApple(int arr[10][10], int x, int y, int *score)
 {
     if (arr[x][y] == 5)
     {
-        // TODO: Add new tail each time
         *score = *score + 1;
         printf("%s\n", "Snake ate an apple");
         printf("%d\n", *score);
-        // usleep(1000000);
         arr[x][y] = 9;
 
         return 1;
@@ -147,20 +145,9 @@ void drawSnake(struct Node snake[], int arr[10][10], int identifier)
 
 void updatePosition(struct Node snake[])
 {
-    // if(!(*last).previous)
-    // {
-
-    // } else {
-    //     (*last).x = (*previous).x;
-    //     (*last).y = (*previous).y;
-    //     (*last).direction = (*previous).direction;
-    //     updatePosition((*last).previous, (*previous).previous);
-    // }
-
-
     // Do not use i >= 0, we don't need to update 'head' node with out of snake array
     // boundaries values (f.e. snake[-1] is {x = 1, y = 1, direction = 1} sometimes)
-    for(int i = SNAKE_LENGTH; i > 0; i--)
+    for(int i = SNAKE_LENGTH - 1; i > 0; i--)
     {
         if(snake[i].direction && snake[i-1].direction)
         {
@@ -169,6 +156,43 @@ void updatePosition(struct Node snake[])
             snake[i].direction = snake[i-1].direction;
         }
     }
+
+    // Update head coordinate based on direction.
+    switch(snake[0].direction)
+    {
+        case keyW:
+            snake[0].x -= 1;
+            break;
+
+        case keyD:
+            snake[0].y += 1;
+            break;
+
+        case keyA:
+            snake[0].y -= 1;
+            break;
+
+        case keyS:
+            snake[0].x += 1;
+            break;
+    }
+
+}
+
+void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score)
+{
+
+    // Empty current pos
+    drawSnake(snake, arr, 0);
+    
+    // Set new pos
+    updatePosition(snake);
+
+    if (ateAnApple(arr, snake[0].x, snake[0].y, score))
+    {
+        addNewNode(snake);
+    }
+    drawSnake(snake, arr, 9);
 
 }
 
@@ -219,7 +243,7 @@ int main(int argv, char *argc[])
 
     while(1)
     {
-        ch = head.direction;
+        ch = snake[0].direction;
 
         // Generating position for apples
         int firstRandPositionIndex = (rand() % 8) + 1;
@@ -237,18 +261,7 @@ int main(int argv, char *argc[])
             // Upper border
             if(snake[0].x > 1)
             {
-                // Empty current pos
-                drawSnake(snake, arr, 0);
-                
-                // Set new pos
-                updatePosition(snake);
-                snake[0].x -= 1;
-
-                if (ateAnApple(arr, snake[0].x, snake[0].y, &score))
-                {
-                    addNewNode(snake);
-                }
-                drawSnake(snake, arr, 9);
+                moveSnakeOnBoard(snake, arr, &score);
             } else
             {
                 // collision
@@ -260,18 +273,7 @@ int main(int argv, char *argc[])
             // Lower border
             if(snake[0].x < 8)
             {
-                // Empty current pos
-                drawSnake(snake, arr, 0);
-                
-                // Set new pos
-                updatePosition(snake);
-                snake[0].x += 1;
-
-                if (ateAnApple(arr, snake[0].x, snake[0].y, &score))
-                {
-                    addNewNode(snake);
-                }
-                drawSnake(snake, arr, 9);
+                moveSnakeOnBoard(snake, arr, &score);
             } else
             {
                 // collision
@@ -283,18 +285,7 @@ int main(int argv, char *argc[])
             // Right border
             if(snake[0].y < 8)
             {
-                // Empty current pos
-                drawSnake(snake, arr, 0);
-                
-                // Set new pos
-                updatePosition(snake);
-                snake[0].y += 1;
-
-                if (ateAnApple(arr, snake[0].x, snake[0].y, &score))
-                {
-                    addNewNode(snake);
-                }
-                drawSnake(snake, arr, 9);
+                moveSnakeOnBoard(snake, arr, &score);
             } else
             {
                 // collision
@@ -306,18 +297,7 @@ int main(int argv, char *argc[])
             // Left border
             if(snake[0].y > 1)
             {
-                // Empty current pos
-                drawSnake(snake, arr, 0);
-                
-                // Set new pos
-                updatePosition(snake);
-                snake[0].y -= 1;
-
-                if (ateAnApple(arr, snake[0].x, snake[0].y, &score))
-                {
-                    addNewNode(snake);
-                }
-                drawSnake(snake, arr, 9);
+                moveSnakeOnBoard(snake, arr, &score);
             } else
             {
                 // collision
@@ -331,7 +311,7 @@ int main(int argv, char *argc[])
         // Update direction if key is pressed
         if (_kbhit())
         {
-            head.direction = getchar();
+            snake[0].direction = getchar();
         }
     }
 
