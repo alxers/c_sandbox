@@ -12,6 +12,8 @@
 #define keyS 115
 
 #define SNAKE_LENGTH 100
+#define APPLE 5
+#define SNAKE 9
 
 
 struct termios terminalSettings;
@@ -72,22 +74,6 @@ struct Node {
     int direction;
 };
 
-int ateAnApple(int arr[10][10], int x, int y, int *score)
-{
-    if (arr[x][y] == 5)
-    {
-        *score = *score + 1;
-        printf("%s\n", "Snake ate an apple");
-        printf("%d\n", *score);
-        arr[x][y] = 9;
-
-        return 1;
-    }
-
-    return 0;
-}
-
-// TODO: fix segfault on adding new node
 void addNewNode(struct Node snake[])
 {
     struct Node newNode;
@@ -125,6 +111,7 @@ void addNewNode(struct Node snake[])
             newNode.y = y + 1;
             break;
     }
+    newNode.direction = direction;
     snake[currentLastNodePosition + 1] = newNode;
 
 }
@@ -179,8 +166,25 @@ void updatePosition(struct Node snake[])
 
 }
 
-void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score)
+int collidesWithItself(struct Node snake[])
 {
+    for(int i = 4; i < SNAKE_LENGTH - 1; i++)
+    {
+        if(snake[i].direction)
+        {
+            if(snake[0].x == snake[i].x && snake[0].y == snake[i].y)
+            {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score, int *isRunning)
+{
+
 
     // Empty current pos
     drawSnake(snake, arr, 0);
@@ -188,10 +192,17 @@ void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score)
     // Set new pos
     updatePosition(snake);
 
-    if (ateAnApple(arr, snake[0].x, snake[0].y, score))
+    if(collidesWithItself(snake))
     {
-        addNewNode(snake);
+        *isRunning = 0;
     }
+    if (arr[snake[0].x][snake[0].y] == APPLE)
+    {
+       *score = *score + 1;
+       arr[snake[0].x][snake[0].y] = 9;
+       addNewNode(snake);
+    }
+
     drawSnake(snake, arr, 9);
 
 }
@@ -215,6 +226,7 @@ int main(int argv, char *argc[])
     // Prints the array that was given
     // Snake will be drawn inside arr and passed to drawDesk
     int score = 0;
+    int isRunning = 1;
 
     drawDesk(arr, &score);
 
@@ -241,7 +253,7 @@ int main(int argv, char *argc[])
     snake[1] = tail1;
     snake[2] = tail2;
 
-    while(1)
+    while(isRunning)
     {
         ch = snake[0].direction;
 
@@ -261,7 +273,7 @@ int main(int argv, char *argc[])
             // Upper border
             if(snake[0].x > 1)
             {
-                moveSnakeOnBoard(snake, arr, &score);
+                moveSnakeOnBoard(snake, arr, &score, &isRunning);
             } else
             {
                 // collision
@@ -273,7 +285,7 @@ int main(int argv, char *argc[])
             // Lower border
             if(snake[0].x < 8)
             {
-                moveSnakeOnBoard(snake, arr, &score);
+                moveSnakeOnBoard(snake, arr, &score, &isRunning);
             } else
             {
                 // collision
@@ -285,7 +297,7 @@ int main(int argv, char *argc[])
             // Right border
             if(snake[0].y < 8)
             {
-                moveSnakeOnBoard(snake, arr, &score);
+                moveSnakeOnBoard(snake, arr, &score, &isRunning);
             } else
             {
                 // collision
@@ -297,7 +309,7 @@ int main(int argv, char *argc[])
             // Left border
             if(snake[0].y > 1)
             {
-                moveSnakeOnBoard(snake, arr, &score);
+                moveSnakeOnBoard(snake, arr, &score, &isRunning);
             } else
             {
                 // collision
@@ -314,6 +326,8 @@ int main(int argv, char *argc[])
             snake[0].direction = getchar();
         }
     }
+
+    printf("%s\n", "Game over");
 
     input_off();
 
