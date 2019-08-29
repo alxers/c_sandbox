@@ -182,10 +182,8 @@ int collidesWithItself(struct Node snake[])
     return 0;
 }
 
-void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score, int *isRunning)
+void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score, int *isRunning, int *gameSpeed)
 {
-
-
     // Empty current pos
     drawSnake(snake, arr, 0);
     
@@ -199,6 +197,7 @@ void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score, int *isR
     if (arr[snake[0].x][snake[0].y] == APPLE)
     {
        *score = *score + 1;
+       *gameSpeed = *gameSpeed - 10000;
        arr[snake[0].x][snake[0].y] = 9;
        addNewNode(snake);
     }
@@ -210,6 +209,7 @@ void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score, int *isR
 int main(int argv, char *argc[])
 {
     input_on();
+    // TODO: increase board size
     int arr[10][10] = {
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -227,10 +227,9 @@ int main(int argv, char *argc[])
     // Snake will be drawn inside arr and passed to drawDesk
     int score = 0;
     int isRunning = 1;
+    int gameSpeed = 600000;
 
     drawDesk(arr, &score);
-
-    int ch;
 
     struct Node head;
     struct Node tail1;
@@ -255,8 +254,6 @@ int main(int argv, char *argc[])
 
     while(isRunning)
     {
-        ch = snake[0].direction;
-
         // Generating position for apples
         int firstRandPositionIndex = (rand() % 8) + 1;
         int secondRandPositionIndex = (rand() % 8) + 1;
@@ -267,63 +264,36 @@ int main(int argv, char *argc[])
         {
             arr[firstRandPositionIndex][secondRandPositionIndex] = 5;
         }
-
-        if (ch == keyW)
+        // When board size increased collisions will no longer work
+        // TODO change to the actual board size
+        if(snake[0].x > 1 && snake[0].x < 8 && snake[0].y < 8 && snake[0].y > 1)
         {
-            // Upper border
-            if(snake[0].x > 1)
-            {
-                moveSnakeOnBoard(snake, arr, &score, &isRunning);
-            } else
-            {
-                // collision
-            }
-        }
-
-        if (ch == keyS)
-        {
-            // Lower border
-            if(snake[0].x < 8)
-            {
-                moveSnakeOnBoard(snake, arr, &score, &isRunning);
-            } else
-            {
-                // collision
-            }
-        }
-
-        if (ch == keyD)
-        {
-            // Right border
-            if(snake[0].y < 8)
-            {
-                moveSnakeOnBoard(snake, arr, &score, &isRunning);
-            } else
-            {
-                // collision
-            }
-        }
-
-        if (ch == keyA)
-        {
-            // Left border
-            if(snake[0].y > 1)
-            {
-                moveSnakeOnBoard(snake, arr, &score, &isRunning);
-            } else
-            {
-                // collision
-            }
+            moveSnakeOnBoard(snake, arr, &score, &isRunning, &gameSpeed);
+        } else {
+            isRunning = 0;
         }
 
         drawDesk(arr, &score);
         // 1000000 = 1 sec
-        usleep(500000);
+        usleep(gameSpeed);
 
         // Update direction if key is pressed
         if (_kbhit())
         {
-            snake[0].direction = getchar();
+            int pressed = getchar();
+            if(pressed == keyW || pressed == keyA || pressed == keyS || pressed == keyD)
+            {
+                // Do not allow to move in the opposite direction
+                if(
+                    !(snake[0].direction == keyW && pressed == keyS) &&
+                    !(snake[0].direction == keyS && pressed == keyW) &&
+                    !(snake[0].direction == keyA && pressed == keyD) &&
+                    !(snake[0].direction == keyD && pressed == keyA)
+                  )
+                {
+                    snake[0].direction = pressed;
+                }
+            }
         }
     }
 
