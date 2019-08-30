@@ -15,6 +15,9 @@
 #define APPLE 5
 #define SNAKE 9
 
+#define WIDTH 30
+#define HEIGHT 30
+
 
 struct termios terminalSettings;
 
@@ -52,12 +55,12 @@ int _kbhit()
     return bytesWaiting;
 }
 
-void drawDesk(int map[10][10], int *score)
+void drawDesk(int map[HEIGHT][WIDTH], int *score)
 {
     clearScreen();
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < HEIGHT; i++)
     {
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < WIDTH; j++)
         {
             printf("%d ", map[i][j]);
         }
@@ -116,7 +119,7 @@ void addNewNode(struct Node snake[])
 
 }
 
-void drawSnake(struct Node snake[], int arr[10][10], int identifier)
+void drawSnake(struct Node snake[], int arr[HEIGHT][WIDTH], int identifier)
 {
     for(int i = 0; i < SNAKE_LENGTH - 1; i++)
     {
@@ -182,7 +185,7 @@ int collidesWithItself(struct Node snake[])
     return 0;
 }
 
-void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score, int *isRunning, int *gameSpeed)
+void moveSnakeOnBoard(struct Node snake[], int arr[HEIGHT][WIDTH], int *score, int *isRunning, int *gameSpeed)
 {
     // Empty current pos
     drawSnake(snake, arr, 0);
@@ -209,19 +212,40 @@ void moveSnakeOnBoard(struct Node snake[], int arr[10][10], int *score, int *isR
 int main(int argv, char *argc[])
 {
     input_on();
-    // TODO: increase board size
-    int arr[10][10] = {
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    };
+    // int arr[HEIGHT][WIDTH] = {
+    //     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    //     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    //     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    //     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    //     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    //     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    //     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    //     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    //     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    //     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    // };
+
+    int arr[HEIGHT][WIDTH];
+    // TODO: Change borad, 0 to ., 9 to #, etc.
+    for(int i = 0; i < HEIGHT; i++)
+    {
+        for(int j = 0; j < WIDTH; j++)
+        {
+            loop:
+                printf("%s\n", "");
+            if(i == 0 || i == (HEIGHT - 1))
+            {
+                arr[i][j] = 1;
+            } else {
+                if(j == 0 || j == (WIDTH - 1))
+                {
+                    arr[i][j] = 1;
+                } else {
+                    arr[i][j] = 0;
+                }
+            }
+        }
+    }
 
     // Prints the array that was given
     // Snake will be drawn inside arr and passed to drawDesk
@@ -264,9 +288,8 @@ int main(int argv, char *argc[])
         {
             arr[firstRandPositionIndex][secondRandPositionIndex] = 5;
         }
-        // When board size increased collisions will no longer work
-        // TODO change to the actual board size
-        if(snake[0].x > 1 && snake[0].x < 8 && snake[0].y < 8 && snake[0].y > 1)
+
+        if(snake[0].x > 1 && snake[0].x < (HEIGHT - 2) && snake[0].y < (HEIGHT - 2) && snake[0].y > 1)
         {
             moveSnakeOnBoard(snake, arr, &score, &isRunning, &gameSpeed);
         } else {
