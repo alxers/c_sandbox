@@ -12,11 +12,14 @@
 #define keyS 115
 
 #define SNAKE_LENGTH 100
-#define APPLE 5
-#define SNAKE 9
+#define APPLE 64
+#define SNAKE 36
 
 #define WIDTH 30
 #define HEIGHT 30
+
+#define BORDER_SYM 35
+#define EMPTY_SYM 32
 
 
 struct termios terminalSettings;
@@ -62,7 +65,8 @@ void drawDesk(int map[HEIGHT][WIDTH], int *score)
     {
         for (int j = 0; j < WIDTH; j++)
         {
-            printf("%d ", map[i][j]);
+            // printf("%c ", map[i][j]);
+            putchar(map[i][j]);
         }
         printf("\n");
     }
@@ -201,11 +205,11 @@ void moveSnakeOnBoard(struct Node snake[], int arr[HEIGHT][WIDTH], int *score, i
     {
        *score = *score + 1;
        *gameSpeed = *gameSpeed - 10000;
-       arr[snake[0].x][snake[0].y] = 9;
+       arr[snake[0].x][snake[0].y] = SNAKE;
        addNewNode(snake);
     }
 
-    drawSnake(snake, arr, 9);
+    drawSnake(snake, arr, SNAKE);
 
 }
 
@@ -231,17 +235,15 @@ int main(int argv, char *argc[])
     {
         for(int j = 0; j < WIDTH; j++)
         {
-            loop:
-                printf("%s\n", "");
             if(i == 0 || i == (HEIGHT - 1))
             {
-                arr[i][j] = 1;
+                arr[i][j] = BORDER_SYM;
             } else {
                 if(j == 0 || j == (WIDTH - 1))
                 {
-                    arr[i][j] = 1;
+                    arr[i][j] = BORDER_SYM;
                 } else {
-                    arr[i][j] = 0;
+                    arr[i][j] = EMPTY_SYM;
                 }
             }
         }
@@ -279,14 +281,14 @@ int main(int argv, char *argc[])
     while(isRunning)
     {
         // Generating position for apples
-        int firstRandPositionIndex = (rand() % 8) + 1;
-        int secondRandPositionIndex = (rand() % 8) + 1;
+        int firstRandPositionIndex = (rand() % (HEIGHT - 2)) + 1;
+        int secondRandPositionIndex = (rand() % (WIDTH - 2)) + 1;
         // Generating random time for apple to appear
         int randTiming = (rand() % 50);
 
         if (randTiming % 5)
         {
-            arr[firstRandPositionIndex][secondRandPositionIndex] = 5;
+            arr[firstRandPositionIndex][secondRandPositionIndex] = APPLE;
         }
 
         if(snake[0].x > 1 && snake[0].x < (HEIGHT - 2) && snake[0].y < (HEIGHT - 2) && snake[0].y > 1)
