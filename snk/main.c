@@ -114,13 +114,13 @@ void addNewNode(struct Node snake[])
             break;
 
         case keyA:
-            newNode.x = x -1;
-            newNode.y = y;
+            newNode.x = x;
+            newNode.y = y + 1;
             break;
 
         case keyS:
-            newNode.x = x;
-            newNode.y = y + 1;
+            newNode.x = x - 1;
+            newNode.y = y;
             break;
     }
     newNode.direction = direction;
@@ -291,7 +291,7 @@ int main(int argv, char *argc[])
         // Generating random time for apple to appear
         int randTiming = (rand() % 50);
 
-        if (randTiming % 5)
+        if (!(randTiming % 5))
         {
             arr[firstRandPositionIndex][secondRandPositionIndex] = APPLE;
         }
