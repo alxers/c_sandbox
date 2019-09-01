@@ -15,11 +15,13 @@
 #define APPLE 64
 #define SNAKE 36
 
-#define WIDTH 30
-#define HEIGHT 30
+#define WIDTH 20
+#define HEIGHT 20
 
 #define BORDER_SYM 35
 #define EMPTY_SYM 32
+
+#define SPACE 32
 
 
 struct termios terminalSettings;
@@ -67,6 +69,7 @@ void drawDesk(int map[HEIGHT][WIDTH], int *score)
         {
             // printf("%c ", map[i][j]);
             putchar(map[i][j]);
+            putchar(SPACE);
         }
         printf("\n");
     }
@@ -96,6 +99,8 @@ void addNewNode(struct Node snake[])
             break;
         }
     }
+    //TODO: Adding new node looks bad.
+    // Sometimes snake goes right, and new node added upward
     switch(direction)
     {
         case keyW:
@@ -192,7 +197,7 @@ int collidesWithItself(struct Node snake[])
 void moveSnakeOnBoard(struct Node snake[], int arr[HEIGHT][WIDTH], int *score, int *isRunning, int *gameSpeed)
 {
     // Empty current pos
-    drawSnake(snake, arr, 0);
+    drawSnake(snake, arr, EMPTY_SYM);
     
     // Set new pos
     updatePosition(snake);
@@ -291,17 +296,6 @@ int main(int argv, char *argc[])
             arr[firstRandPositionIndex][secondRandPositionIndex] = APPLE;
         }
 
-        if(snake[0].x > 1 && snake[0].x < (HEIGHT - 2) && snake[0].y < (HEIGHT - 2) && snake[0].y > 1)
-        {
-            moveSnakeOnBoard(snake, arr, &score, &isRunning, &gameSpeed);
-        } else {
-            isRunning = 0;
-        }
-
-        drawDesk(arr, &score);
-        // 1000000 = 1 sec
-        usleep(gameSpeed);
-
         // Update direction if key is pressed
         if (_kbhit())
         {
@@ -320,6 +314,17 @@ int main(int argv, char *argc[])
                 }
             }
         }
+
+        if(snake[0].x > 1 && snake[0].x < (HEIGHT - 2) && snake[0].y < (HEIGHT - 2) && snake[0].y > 1)
+        {
+            moveSnakeOnBoard(snake, arr, &score, &isRunning, &gameSpeed);
+        } else {
+            isRunning = 0;
+        }
+
+        drawDesk(arr, &score);
+        // 1000000 = 1 sec
+        usleep(gameSpeed);
     }
 
     printf("%s\n", "Game over");
