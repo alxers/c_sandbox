@@ -12,10 +12,10 @@ struct RenderBuffer
     BITMAPINFO bitmapInfo;
 };
 
-struct RenderBuffer renderBuffer;
+static struct RenderBuffer renderBuffer;
 
 // TODO: move to a different file
-void draw(uint32_t c)
+void clearScreen(uint32_t c)
 {
     uint32_t *pixel = renderBuffer.memory;
 
@@ -27,6 +27,22 @@ void draw(uint32_t c)
         }
     }
 }
+
+void drawRect(int x0, int y0, int width, int height, uint32_t color)
+{
+    // uint32_t *pixel = renderBuffer.memory;
+
+    for(int y = y0; y < width; y++)
+    {
+        uint32_t *pixel = renderBuffer.memory + x0 + renderBuffer.width*y;
+        for(int x = x0; x < height; x++)
+        {
+            *pixel++ = color;
+        }
+    }
+}
+
+// end move
 
 LRESULT CALLBACK WindowProc(
     HWND   hwnd,
@@ -123,7 +139,8 @@ int WinMain(
         }
 
         // Drawing
-        draw(0xff4400);
+        clearScreen(0xffffff);
+        drawRect(50, 50, 200, 200, 0x000000);
 
         // Rendering
         StretchDIBits(
@@ -132,7 +149,7 @@ int WinMain(
                         renderBuffer.width, renderBuffer.height,
                         0, 0,
                         renderBuffer.width, renderBuffer.height,
-                        &renderBuffer.memory, &renderBuffer.bitmapInfo,
+                        renderBuffer.memory, &renderBuffer.bitmapInfo,
                         DIB_RGB_COLORS,
                         SRCCOPY
                     );
