@@ -12,7 +12,7 @@ struct RenderBuffer
     BITMAPINFO bitmapInfo;
 };
 
-static struct RenderBuffer renderBuffer;
+struct RenderBuffer renderBuffer;
 
 // TODO: move to a different file
 void clearScreen(uint32_t c)
@@ -28,17 +28,33 @@ void clearScreen(uint32_t c)
     }
 }
 
-void drawRect(int x0, int y0, int width, int height, uint32_t color)
-{
-    // uint32_t *pixel = renderBuffer.memory;
+// void drawRect(int x0, int y0, int x1, int y1, uint32_t color)
+// {
+//     // uint32_t *pixel = renderBuffer.memory;
 
-    for(int y = y0; y < width; y++)
+//     uint32_t *pixel = renderBuffer.memory + x0 + renderBuffer.width * y0;
+//     for(int y = y0; y < y1; y++)
+//     {
+//         for(int x = x0; x < x1; x++)
+//         {
+//             *pixel++ = color;
+//         }
+//     }
+// }
+
+void drawRect(int x0, int y0, int x1, int y1, uint32_t color)
+{
+    // cast memory to uint8 ?
+    uint8_t *row = (uint8_t *)renderBuffer.memory + x1 * 4 + y1 * (renderBuffer.width * 4);
+    for(int y = y0; y < y1; y++)
     {
-        uint32_t *pixel = renderBuffer.memory + x0 + renderBuffer.width*y;
-        for(int x = x0; x < height; x++)
+        uint32_t *pixel = (uint32_t *) row; 
+        for(int x = x0; x < x1; x++)
         {
             *pixel++ = color;
         }
+        // 4 is a bytePerPixel
+        row += renderBuffer.width * 4;
     }
 }
 
@@ -78,7 +94,7 @@ LRESULT CALLBACK WindowProc(
             renderBuffer.memory = VirtualAlloc(
                 0,
                 sizeof(uint32_t) * renderBuffer.width * renderBuffer.height,
-                MEM_COMMIT, PAGE_READWRITE
+                MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE
             );
 
             // Fill in bitmapinfo
@@ -89,6 +105,18 @@ LRESULT CALLBACK WindowProc(
             renderBuffer.bitmapInfo.bmiHeader.biBitCount = 32;
             renderBuffer.bitmapInfo.bmiHeader.biCompression = BI_RGB;
         } break;
+
+        // This is needed to draw from top left
+        // Currently it's drawn from bottom left
+        // case WM_PAINT:
+        // {
+        //     PAINTSTRUCT paint;
+        //     HDC deviceContext = BeginPaint(hwnd, &paint);
+        //     int x = paint.rcPaint.left;
+        //     int y = paint.rcPaint.top;
+
+
+        // } break;
 
         default:
         {
@@ -123,7 +151,7 @@ int WinMain(
                                     WS_VISIBLE | WS_OVERLAPPEDWINDOW,
                                     CW_USEDEFAULT,
                                     CW_USEDEFAULT,
-                                    1024, 640, 0, 0, 0, 0
+                                    640, 480, 0, 0, 0, 0
                                 );
 
     HDC deviceContext = GetDC(window);
@@ -139,8 +167,8 @@ int WinMain(
         }
 
         // Drawing
-        clearScreen(0xffffff);
-        drawRect(50, 50, 200, 200, 0x000000);
+        // clearScreen(0xffffff);
+        drawRect(-100, -100, 50, 50, 0xffffff);
 
         // Rendering
         StretchDIBits(
