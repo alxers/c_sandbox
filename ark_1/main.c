@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <stdint.h>
+#include <stdio.h>
 
 // TODO: check why we need 'static'
 int running = 1;
@@ -12,7 +13,27 @@ struct RenderBuffer
     BITMAPINFO bitmapInfo;
 };
 
+struct Button
+{
+    int key;
+    int isPressed;
+};
+
+struct Input
+{
+    struct Button buttons[2];
+};
+
 struct RenderBuffer renderBuffer;
+struct Button left = {VK_LEFT, 0};
+struct Button right  = {VK_RIGHT, 0};
+
+// button1.key = VK_LEFT;
+// button2.key = VK_RIGHT;
+
+struct Input input;
+// input.buttons[0] = button1;
+// input.buttons[1] = button2;
 
 void clearScreen(uint32_t c)
 {
@@ -47,6 +68,8 @@ LRESULT CALLBACK WindowProc(
 )
 {
     LRESULT result = 0;
+    input.buttons[0] = left;
+    input.buttons[1] = right;
 
     switch(uMsg)
     {
@@ -85,6 +108,26 @@ LRESULT CALLBACK WindowProc(
             renderBuffer.bitmapInfo.bmiHeader.biCompression = BI_RGB;
         } break;
 
+        case WM_KEYDOWN:
+        {
+            // if(wParam == VK_LEFT)
+            // {
+
+            // }
+            switch(wParam)
+            {
+                case VK_LEFT:
+                {
+                    input.buttons[0].isPressed = 1;
+                } break;
+
+                case VK_RIGHT:
+                {
+                    input.buttons[0].isPressed = 1;
+                } break;
+            }
+        } break;
+
         default:
         {
             result = DefWindowProc(hwnd, uMsg, wParam, lParam);  
@@ -121,6 +164,8 @@ int WinMain(
 
     HDC deviceContext = GetDC(window);
 
+    int pos = 0;
+
     while(running)
     {
         // Input
@@ -131,9 +176,23 @@ int WinMain(
             DispatchMessage(&message); 
         }
 
+        // OutputDebugString(message.message);
+
         // Drawing
-        // clearScreen(0xffffff);
-        drawRect(50, 50, 200, 300, 0xffffff);
+        clearScreen(0x000000);
+        if(input.buttons[0].isPressed)
+        {
+            pos += 10;
+        }
+        drawRect(pos, pos, 200, 300, 0xffffff);
+
+
+        // Clear button states
+        for(int i = 0; i < 2; i++)
+        {
+            input.buttons[i].isPressed = 0;
+        }
+        // End Drawing
 
         // Rendering
         StretchDIBits(
