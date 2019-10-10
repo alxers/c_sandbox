@@ -13,52 +13,16 @@ struct RenderBuffer
     BITMAPINFO bitmapInfo;
 };
 
-struct Button
-{
-    int key;
-    int isPressed;
-};
-
 struct Input
 {
-    struct Button buttons[2];
+    int left;
+    int right;
 };
 
 struct RenderBuffer renderBuffer;
-struct Button left = {VK_LEFT, 0};
-struct Button right  = {VK_RIGHT, 0};
-
-// button1.key = VK_LEFT;
-// button2.key = VK_RIGHT;
-
 struct Input input;
-// input.buttons[0] = button1;
-// input.buttons[1] = button2;
 
-void clearScreen(uint32_t c)
-{
-    uint32_t *pixel = renderBuffer.memory;
-
-    for(int y = 0; y < renderBuffer.height; y++)
-    {
-        for(int x = 0; x < renderBuffer.width; x++)
-        {
-            *pixel++ = c;
-        }
-    }
-}
-
-void drawRect(int x0, int y0, int x1, int y1, uint32_t color)
-{
-    for(int y = y0; y < y1; y++)
-    {
-        uint32_t *pixel = renderBuffer.memory + x0 + renderBuffer.width * y;
-        for(int x = x0; x < x1; x++)
-        {
-            *pixel++ = color;
-        }
-    }
-}
+#include "renderer.c"
 
 LRESULT CALLBACK WindowProc(
     HWND   hwnd,
@@ -68,8 +32,6 @@ LRESULT CALLBACK WindowProc(
 )
 {
     LRESULT result = 0;
-    input.buttons[0] = left;
-    input.buttons[1] = right;
 
     switch(uMsg)
     {
@@ -108,30 +70,10 @@ LRESULT CALLBACK WindowProc(
             renderBuffer.bitmapInfo.bmiHeader.biCompression = BI_RGB;
         } break;
 
-        case WM_KEYDOWN:
-        {
-            // if(wParam == VK_LEFT)
-            // {
-
-            // }
-            switch(wParam)
-            {
-                case VK_LEFT:
-                {
-                    input.buttons[0].isPressed = 1;
-                } break;
-
-                case VK_RIGHT:
-                {
-                    input.buttons[0].isPressed = 1;
-                } break;
-            }
-        } break;
-
         default:
         {
-            result = DefWindowProc(hwnd, uMsg, wParam, lParam);  
-        }
+            result = DefWindowProc(hwnd, uMsg, wParam, lParam);
+        } break;
     }
     return result;
 }
@@ -164,34 +106,46 @@ int WinMain(
 
     HDC deviceContext = GetDC(window);
 
-    int pos = 0;
-
     while(running)
     {
         // Input
+
+        // Clear button states
+        input.left = 0;
+        input.right = 0;
+
         MSG message;
         while(PeekMessage(&message, window, 0, 0, PM_REMOVE))
         {
-            TranslateMessage(&message); 
-            DispatchMessage(&message); 
-        }
+            switch(message.message)
+            {
+                case WM_KEYDOWN:
+                {
+                    switch(message.wParam)
+                    {
+                        case VK_LEFT:
+                        {
+                            input.left = 1;
+                        } break;
 
-        // OutputDebugString(message.message);
+                        case VK_RIGHT:
+                        {
+                            input.right = 1;
+                        } break;
+                    }
+                } break;
+
+                default:
+                {
+                    TranslateMessage(&message); 
+                    DispatchMessage(&message);   
+                }
+            }
+        }
+        // End Input
 
         // Drawing
-        clearScreen(0x000000);
-        if(input.buttons[0].isPressed)
-        {
-            pos += 10;
-        }
-        drawRect(pos, pos, 200, 300, 0xffffff);
-
-
-        // Clear button states
-        for(int i = 0; i < 2; i++)
-        {
-            input.buttons[i].isPressed = 0;
-        }
+        gameUpdateAndRender(&input);
         // End Drawing
 
         // Rendering
