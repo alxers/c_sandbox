@@ -13,14 +13,34 @@ struct RenderBuffer
     BITMAPINFO bitmapInfo;
 };
 
+struct ButtonState
+{
+    int isDown;
+    int changed;
+};
+
+enum btns
+{
+    LEFT,
+    RIGHT,
+
+    BTNCOUNT
+};
+
 struct Input
 {
-    int left;
-    int right;
+    struct ButtonState buttons[BTNCOUNT];
 };
 
 struct RenderBuffer renderBuffer;
-struct Input input;
+struct Input input = {0};
+
+#define processBtn(btn, vk)\
+case vk:\
+{\
+input.buttons[btn].changed = isDown != input.buttons[btn].isDown;\
+input.buttons[btn].isDown = isDown;\
+} break;
 
 #include "renderer.c"
 
@@ -106,32 +126,53 @@ int WinMain(
 
     HDC deviceContext = GetDC(window);
 
+    // Time
+    float deltaTime = 0.016666f; // can be just 0.0 ?
+    LARGE_INTEGER frameBeginTime;
+    QueryPerformanceCounter(&frameBeginTime);
+
+    float performanceFreq;
+    {
+        LARGE_INTEGER perf;
+        QueryPerformanceFrequency(&perf);
+        performanceFreq = (float)perf.QuadPart;
+    }
+
     while(running)
     {
         // Input
 
         // Clear button states
-        input.left = 0;
-        input.right = 0;
+        for(int i = 0; i < BTNCOUNT; i++)
+        {
+            input.buttons[i].changed = 0;
+        }
 
         MSG message;
         while(PeekMessage(&message, window, 0, 0, PM_REMOVE))
         {
             switch(message.message)
             {
+                case WM_KEYUP:
                 case WM_KEYDOWN:
                 {
-                    switch(message.wParam)
+                    uint32_t vkCode = (uint32_t)message.wParam;
+                    int isDown = ((message.lParam & (1 << 31)) == 0);
+                    switch(vkCode)
                     {
-                        case VK_LEFT:
-                        {
-                            input.left = 1;
-                        } break;
+                        processBtn(LEFT, VK_LEFT);
+                        processBtn(RIGHT, VK_RIGHT);
+                        // case VK_LEFT:
+                        // {
+                        //     input.buttons[LEFT].changed = isDown != input.buttons[LEFT].isDown;
+                        //     input.buttons[LEFT].isDown = isDown;
+                        // } break;
 
-                        case VK_RIGHT:
-                        {
-                            input.right = 1;
-                        } break;
+                        // case VK_RIGHT:
+                        // {
+                        //     input.buttons[RIGHT].changed = isDown != input.buttons[RIGHT].isDown;
+                        //     input.buttons[RIGHT].isDown = isDown;
+                        // } break;
                     }
                 } break;
 
@@ -145,7 +186,7 @@ int WinMain(
         // End Input
 
         // Drawing
-        gameUpdateAndRender(&input);
+        gameUpdateAndRender(&input, deltaTime);
         // End Drawing
 
         // Rendering
@@ -159,5 +200,10 @@ int WinMain(
                         DIB_RGB_COLORS,
                         SRCCOPY
                     );
+
+        LARGE_INTEGER frameEndTime;
+        QueryPerformanceCounter(&frameEndTime);
+        deltaTime = (float)(frameEndTime.QuadPart - frameBeginTime.QuadPart) / performanceFreq;
+        frameBeginTime = frameEndTime;
     }
 }

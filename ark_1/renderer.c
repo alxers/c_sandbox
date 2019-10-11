@@ -65,19 +65,26 @@ void drawRect(float x, float y, float halfSizeX, float halfSizeY, uint32_t color
     drawRectPix(x0, y0, x1, y1, color);
 }
 
-int pos = 0;
-void gameUpdateAndRender(struct Input *input)
+// Game
+#define isDown(btn) (input->buttons[btn].isDown)
+
+float playerPosY = 0.0;
+
+void gameUpdateAndRender(struct Input *input, float dt)
 {
-    if(input->right)
+    float speed = 50.0; // units per second
+    if(isDown(LEFT))
     {
-        pos+=10;
+        playerPosY -= speed * dt;
     }
-    if(input->left)
+
+    if(isDown(RIGHT))
     {
-        pos-=10;
+        playerPosY += speed * dt;
     }
+
     clearScreen(0x000000);
     drawRect(0, 0, 1, 1, 0xffffff);
-    drawRect(50, pos, 2.5, 12, 0xffffff);
+    drawRect(50, playerPosY, 2.5, 12, 0xffffff);
     drawRect(-50, 0, 2.5, 12, 0xffffff);
 }
