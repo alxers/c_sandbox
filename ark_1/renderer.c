@@ -68,23 +68,104 @@ void drawRect(float x, float y, float halfSizeX, float halfSizeY, uint32_t color
 // Game
 #define isDown(btn) (input->buttons[btn].isDown)
 
-float playerPosY = 0.0;
+float player1PosY = 0.0;
+float player1Velocity = 0.0;
+
+float player2PosY = 0.0;
+float player2Velocity = 0.0;
+
+float arenaHalfSizeX = 65;
+float arenaHalfSizeY = 45;
+float playerHalfSizeX = 2.5;
+float playerHalfSizeY = 12;
+
+// Ball
+float ballPosX, ballPosY, ballVelocityX = 100, ballVelocityY;
+float ballHalfSize = 1;
 
 void gameUpdateAndRender(struct Input *input, float dt)
 {
-    float speed = 50.0; // units per second
+    float player1Acceleration = 0.0;
+    float player2Acceleration = 0.0;
     if(isDown(LEFT))
     {
-        playerPosY -= speed * dt;
+        player1Acceleration -= 2000;
     }
 
     if(isDown(RIGHT))
     {
-        playerPosY += speed * dt;
+        player1Acceleration += 2000;
     }
 
+    // Add friction
+    player1Acceleration -= player1Velocity * 10.0;
+
+    player1PosY = player1PosY + player1Velocity * dt + (player1Acceleration * dt * dt) / 2.0;
+    player1Velocity = player1Velocity + player1Acceleration * dt;
+
+    player2Acceleration -= player1Velocity * 10.0;
+
+    player2PosY = player2PosY + player2Velocity * dt + (player2Acceleration * dt * dt) / 2.0;
+    player2Velocity = player2Velocity + player2Acceleration * dt;
+
+    //
+    ballPosX += ballVelocityX * dt;
+    ballPosY += ballVelocityY * dt;
+    //
+
+    // Player's collisions
+    if(player1PosY + playerHalfSizeY > arenaHalfSizeY)
+    {
+        player1PosY = arenaHalfSizeY - playerHalfSizeY;
+        player1Velocity *= -0.7;
+    }
+    else if(player1PosY - playerHalfSizeY < -arenaHalfSizeY)
+    {
+        player1PosY = -arenaHalfSizeY + playerHalfSizeY;
+        player1Velocity *= -0.7;
+    }
+
+    if(player2PosY + playerHalfSizeY > arenaHalfSizeY)
+    {
+        player2PosY = arenaHalfSizeY - playerHalfSizeY;
+        player2Velocity *= -0.7;
+    }
+    else if(player2PosY - playerHalfSizeY < -arenaHalfSizeY)
+    {
+        player2PosY = -arenaHalfSizeY + playerHalfSizeY;
+        player2Velocity *= -0.7;
+    }
+    // End Player's collisions
+
+    // Ball collisions
+    if(ballPosX + ballHalfSize > 50 - playerHalfSizeX &&
+       ballPosX - ballHalfSize < 50 + playerHalfSizeX &&
+       ballPosY + ballHalfSize > player1PosY - playerHalfSizeY &&
+       ballPosY + ballHalfSize < player1PosY + playerHalfSizeY)
+    {
+        ballPosX = 50 - playerHalfSizeX - ballHalfSize;
+        ballVelocityX *= -1;
+        ballVelocityY = player1Velocity * 0.75;
+    }
+    else if(ballPosX + ballHalfSize > -50 - playerHalfSizeX &&
+            ballPosX - ballHalfSize < -50 + playerHalfSizeX &&
+            ballPosY + ballHalfSize > player2PosY - playerHalfSizeY &&
+            ballPosY + ballHalfSize < player2PosY + playerHalfSizeY)
+    {
+        ballPosX = -50 + playerHalfSizeX + ballHalfSize;
+        ballVelocityX *= -1;
+        ballVelocityY = player2Velocity * 0.75;
+    }
+    // End Ball collisions
+
     clearScreen(0x000000);
-    drawRect(0, 0, 1, 1, 0xffffff);
-    drawRect(50, playerPosY, 2.5, 12, 0xffffff);
+
+    // Arena boundaries
+    drawRect(0, 0, arenaHalfSizeX, arenaHalfSizeY, 0x5c5c5c);
+
+    // Ball
+    drawRect(ballPosX, ballPosY, 1, 1, 0xffffff);
+
+    drawRect(50, player1PosY, 2.5, 12, 0xffffff);
     drawRect(-50, 0, 2.5, 12, 0xffffff);
 }
