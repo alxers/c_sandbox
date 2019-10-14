@@ -21,8 +21,10 @@ struct ButtonState
 
 enum btns
 {
-    LEFT,
-    RIGHT,
+    UP,
+    DOWN,
+    W_BTN,
+    S_BTN,
 
     BTNCOUNT
 };
@@ -160,8 +162,11 @@ int WinMain(
                     int isDown = ((message.lParam & (1 << 31)) == 0);
                     switch(vkCode)
                     {
-                        processBtn(LEFT, VK_LEFT);
-                        processBtn(RIGHT, VK_RIGHT);
+                        processBtn(UP, VK_UP);
+                        processBtn(DOWN, VK_DOWN);
+
+                        processBtn(W_BTN, 0x57);
+                        processBtn(S_BTN, 0x53);
                         // case VK_LEFT:
                         // {
                         //     input.buttons[LEFT].changed = isDown != input.buttons[LEFT].isDown;

@@ -87,14 +87,24 @@ void gameUpdateAndRender(struct Input *input, float dt)
 {
     float player1Acceleration = 0.0;
     float player2Acceleration = 0.0;
-    if(isDown(LEFT))
+    if(isDown(DOWN))
     {
         player1Acceleration -= 2000;
     }
 
-    if(isDown(RIGHT))
+    if(isDown(UP))
     {
         player1Acceleration += 2000;
+    }
+
+    if(isDown(S_BTN))
+    {
+        player2Acceleration -= 2000;
+    }
+
+    if(isDown(W_BTN))
+    {
+        player2Acceleration += 2000;
     }
 
     // Add friction
@@ -103,7 +113,7 @@ void gameUpdateAndRender(struct Input *input, float dt)
     player1PosY = player1PosY + player1Velocity * dt + (player1Acceleration * dt * dt) / 2.0;
     player1Velocity = player1Velocity + player1Acceleration * dt;
 
-    player2Acceleration -= player1Velocity * 10.0;
+    player2Acceleration -= player2Velocity * 10.0;
 
     player2PosY = player2PosY + player2Velocity * dt + (player2Acceleration * dt * dt) / 2.0;
     player2Velocity = player2Velocity + player2Acceleration * dt;
@@ -158,6 +168,35 @@ void gameUpdateAndRender(struct Input *input, float dt)
     }
     // End Ball collisions
 
+
+    // Wall collisions
+    if(ballPosY + ballHalfSize > arenaHalfSizeY)
+    {
+        ballPosY = arenaHalfSizeY - ballHalfSize;
+        ballVelocityY *= -1;
+    }
+    else if(ballPosY - ballHalfSize < -arenaHalfSizeY)
+    {
+        ballPosY = -arenaHalfSizeY + ballHalfSize;
+        ballVelocityY *= -1;
+    }
+
+    if(ballPosX + ballHalfSize > arenaHalfSizeX)
+    {
+        ballPosX = 0;
+        ballPosY = 0;
+        ballVelocityY = 0;
+        ballVelocityX *= -1;
+    }
+    else if(ballPosX - ballHalfSize < -arenaHalfSizeX)
+    {
+        ballPosX = 0;
+        ballPosY = 0;
+        ballVelocityY = 0;
+        ballVelocityX *= -1;
+    }
+    // End Wall collisions
+
     clearScreen(0x000000);
 
     // Arena boundaries
@@ -167,5 +206,5 @@ void gameUpdateAndRender(struct Input *input, float dt)
     drawRect(ballPosX, ballPosY, 1, 1, 0xffffff);
 
     drawRect(50, player1PosY, 2.5, 12, 0xffffff);
-    drawRect(-50, 0, 2.5, 12, 0xffffff);
+    drawRect(-50, player2PosY, 2.5, 12, 0xffffff);
 }
