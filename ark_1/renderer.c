@@ -83,6 +83,26 @@ float playerHalfSizeY = 12;
 float ballPosX, ballPosY, ballVelocityX = 100, ballVelocityY;
 float ballHalfSize = 1;
 
+void playerUpdate(float *playerPosY, float *playerVelocity, float playerAcceleration ,float dt)
+{
+    // Add friction
+    playerAcceleration -= *playerVelocity * 10.0;
+
+    *playerPosY = *playerPosY + *playerVelocity * dt + (playerAcceleration * dt * dt) / 2.0;
+    *playerVelocity = *playerVelocity + playerAcceleration * dt;
+
+    if(*playerPosY + playerHalfSizeY > arenaHalfSizeY)
+    {
+        *playerPosY = arenaHalfSizeY - playerHalfSizeY;
+        *playerVelocity *= -0.7;
+    }
+    else if(*playerPosY - playerHalfSizeY < -arenaHalfSizeY)
+    {
+        *playerPosY = -arenaHalfSizeY + playerHalfSizeY;
+        *playerVelocity *= -0.7;
+    }
+}
+
 void gameUpdateAndRender(struct Input *input, float dt)
 {
     float player1Acceleration = 0.0;
@@ -107,45 +127,13 @@ void gameUpdateAndRender(struct Input *input, float dt)
         player2Acceleration += 2000;
     }
 
-    // Add friction
-    player1Acceleration -= player1Velocity * 10.0;
-
-    player1PosY = player1PosY + player1Velocity * dt + (player1Acceleration * dt * dt) / 2.0;
-    player1Velocity = player1Velocity + player1Acceleration * dt;
-
-    player2Acceleration -= player2Velocity * 10.0;
-
-    player2PosY = player2PosY + player2Velocity * dt + (player2Acceleration * dt * dt) / 2.0;
-    player2Velocity = player2Velocity + player2Acceleration * dt;
+    playerUpdate(&player1PosY, &player1Velocity, player1Acceleration, dt);
+    playerUpdate(&player2PosY, &player2Velocity, player2Acceleration, dt);
 
     //
     ballPosX += ballVelocityX * dt;
     ballPosY += ballVelocityY * dt;
     //
-
-    // Player's collisions
-    if(player1PosY + playerHalfSizeY > arenaHalfSizeY)
-    {
-        player1PosY = arenaHalfSizeY - playerHalfSizeY;
-        player1Velocity *= -0.7;
-    }
-    else if(player1PosY - playerHalfSizeY < -arenaHalfSizeY)
-    {
-        player1PosY = -arenaHalfSizeY + playerHalfSizeY;
-        player1Velocity *= -0.7;
-    }
-
-    if(player2PosY + playerHalfSizeY > arenaHalfSizeY)
-    {
-        player2PosY = arenaHalfSizeY - playerHalfSizeY;
-        player2Velocity *= -0.7;
-    }
-    else if(player2PosY - playerHalfSizeY < -arenaHalfSizeY)
-    {
-        player2PosY = -arenaHalfSizeY + playerHalfSizeY;
-        player2Velocity *= -0.7;
-    }
-    // End Player's collisions
 
     // Ball collisions
     if(ballPosX + ballHalfSize > 50 - playerHalfSizeX &&
