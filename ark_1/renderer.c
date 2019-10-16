@@ -65,6 +65,66 @@ void drawRect(float x, float y, float halfSizeX, float halfSizeY, uint32_t color
     drawRectPix(x0, y0, x1, y1, color);
 }
 
+#include <math.h>
+void drawCirclePix(float m, float n, float radius, uint32_t color)
+{
+
+    // works
+    // for(int i = 0; i < 360; i++)
+    // {
+    //     x = radius * cosf(i);
+    //     y = radius * sinf(i);
+    //     drawRect(x, y, 0.1, 0.1, color);
+    // }
+
+    // works
+    // for(int y = -radius; y <= radius; y++)
+    // {
+    //     for(int x = -radius; x <= radius; x++)
+    //     {
+    //         if(x*x + y*y <= radius*radius + radius*0.8f)
+    //         {
+    //             drawRect((float)x, (float)y, 1.0, 1.0, color);
+    //         }
+    //     }
+    // }
+
+    float x = radius, y = 0.0;
+
+    int P = 1 - radius;
+    while(x > y)
+    {
+        y++;
+
+        if(P <= 0)
+        {
+            P = P + 2*y + 1;
+        }
+        else
+        {
+            x--;
+            P = P + 2*y - 2*x + 1;
+        }
+
+        if(x < y)
+        {
+            break;
+        }
+        drawRect(x, y, 1.0, 1.0, color);
+        drawRect(-x, y, 1.0, 1.0, color);
+        drawRect(x, -y, 1.0, 1.0, color);
+        drawRect(-x, -y, 1.0, 1.0, color);
+
+        if(x != y)
+        {
+            drawRect(y, x, 1.0, 1.0, color);
+            drawRect(-y, x, 1.0, 1.0, color);
+            drawRect(y, -x, 1.0, 1.0, color);
+            drawRect(-y, -x, 1.0, 1.0, color);
+        }
+    }
+}
+
 // Game
 #define isDown(btn) (input->buttons[btn].isDown)
 
@@ -103,96 +163,103 @@ void playerUpdate(float *playerPosY, float *playerVelocity, float playerAccelera
     }
 }
 
+// void gameUpdateAndRender(struct Input *input, float dt)
+// {
+//     float player1Acceleration = 0.0;
+//     float player2Acceleration = 0.0;
+//     if(isDown(DOWN))
+//     {
+//         player1Acceleration -= 2000;
+//     }
+
+//     if(isDown(UP))
+//     {
+//         player1Acceleration += 2000;
+//     }
+
+//     if(isDown(S_BTN))
+//     {
+//         player2Acceleration -= 2000;
+//     }
+
+//     if(isDown(W_BTN))
+//     {
+//         player2Acceleration += 2000;
+//     }
+
+//     playerUpdate(&player1PosY, &player1Velocity, player1Acceleration, dt);
+//     playerUpdate(&player2PosY, &player2Velocity, player2Acceleration, dt);
+
+//     //
+//     ballPosX += ballVelocityX * dt;
+//     ballPosY += ballVelocityY * dt;
+//     //
+
+//     // Ball collisions
+//     if(ballPosX + ballHalfSize > 50 - playerHalfSizeX &&
+//        ballPosX - ballHalfSize < 50 + playerHalfSizeX &&
+//        ballPosY + ballHalfSize > player1PosY - playerHalfSizeY &&
+//        ballPosY + ballHalfSize < player1PosY + playerHalfSizeY)
+//     {
+//         ballPosX = 50 - playerHalfSizeX - ballHalfSize;
+//         ballVelocityX *= -1;
+//         ballVelocityY = player1Velocity * 0.75;
+//     }
+//     else if(ballPosX + ballHalfSize > -50 - playerHalfSizeX &&
+//             ballPosX - ballHalfSize < -50 + playerHalfSizeX &&
+//             ballPosY + ballHalfSize > player2PosY - playerHalfSizeY &&
+//             ballPosY + ballHalfSize < player2PosY + playerHalfSizeY)
+//     {
+//         ballPosX = -50 + playerHalfSizeX + ballHalfSize;
+//         ballVelocityX *= -1;
+//         ballVelocityY = player2Velocity * 0.75;
+//     }
+//     // End Ball collisions
+
+
+//     // Wall collisions
+//     if(ballPosY + ballHalfSize > arenaHalfSizeY)
+//     {
+//         ballPosY = arenaHalfSizeY - ballHalfSize;
+//         ballVelocityY *= -1;
+//     }
+//     else if(ballPosY - ballHalfSize < -arenaHalfSizeY)
+//     {
+//         ballPosY = -arenaHalfSizeY + ballHalfSize;
+//         ballVelocityY *= -1;
+//     }
+
+//     if(ballPosX + ballHalfSize > arenaHalfSizeX)
+//     {
+//         ballPosX = 0;
+//         ballPosY = 0;
+//         ballVelocityY = 0;
+//         ballVelocityX *= -1;
+//     }
+//     else if(ballPosX - ballHalfSize < -arenaHalfSizeX)
+//     {
+//         ballPosX = 0;
+//         ballPosY = 0;
+//         ballVelocityY = 0;
+//         ballVelocityX *= -1;
+//     }
+//     // End Wall collisions
+
+//     clearScreen(0x000000);
+
+//     // Arena boundaries
+//     drawRect(0, 0, arenaHalfSizeX, arenaHalfSizeY, 0x5c5c5c);
+
+//     // Ball
+//     drawRect(ballPosX, ballPosY, 1, 1, 0xffffff);
+
+//     drawRect(50, player1PosY, 2.5, 12, 0xffffff);
+//     drawRect(-50, player2PosY, 2.5, 12, 0xffffff);
+// }
+
 void gameUpdateAndRender(struct Input *input, float dt)
 {
-    float player1Acceleration = 0.0;
-    float player2Acceleration = 0.0;
-    if(isDown(DOWN))
-    {
-        player1Acceleration -= 2000;
-    }
-
-    if(isDown(UP))
-    {
-        player1Acceleration += 2000;
-    }
-
-    if(isDown(S_BTN))
-    {
-        player2Acceleration -= 2000;
-    }
-
-    if(isDown(W_BTN))
-    {
-        player2Acceleration += 2000;
-    }
-
-    playerUpdate(&player1PosY, &player1Velocity, player1Acceleration, dt);
-    playerUpdate(&player2PosY, &player2Velocity, player2Acceleration, dt);
-
-    //
-    ballPosX += ballVelocityX * dt;
-    ballPosY += ballVelocityY * dt;
-    //
-
-    // Ball collisions
-    if(ballPosX + ballHalfSize > 50 - playerHalfSizeX &&
-       ballPosX - ballHalfSize < 50 + playerHalfSizeX &&
-       ballPosY + ballHalfSize > player1PosY - playerHalfSizeY &&
-       ballPosY + ballHalfSize < player1PosY + playerHalfSizeY)
-    {
-        ballPosX = 50 - playerHalfSizeX - ballHalfSize;
-        ballVelocityX *= -1;
-        ballVelocityY = player1Velocity * 0.75;
-    }
-    else if(ballPosX + ballHalfSize > -50 - playerHalfSizeX &&
-            ballPosX - ballHalfSize < -50 + playerHalfSizeX &&
-            ballPosY + ballHalfSize > player2PosY - playerHalfSizeY &&
-            ballPosY + ballHalfSize < player2PosY + playerHalfSizeY)
-    {
-        ballPosX = -50 + playerHalfSizeX + ballHalfSize;
-        ballVelocityX *= -1;
-        ballVelocityY = player2Velocity * 0.75;
-    }
-    // End Ball collisions
-
-
-    // Wall collisions
-    if(ballPosY + ballHalfSize > arenaHalfSizeY)
-    {
-        ballPosY = arenaHalfSizeY - ballHalfSize;
-        ballVelocityY *= -1;
-    }
-    else if(ballPosY - ballHalfSize < -arenaHalfSizeY)
-    {
-        ballPosY = -arenaHalfSizeY + ballHalfSize;
-        ballVelocityY *= -1;
-    }
-
-    if(ballPosX + ballHalfSize > arenaHalfSizeX)
-    {
-        ballPosX = 0;
-        ballPosY = 0;
-        ballVelocityY = 0;
-        ballVelocityX *= -1;
-    }
-    else if(ballPosX - ballHalfSize < -arenaHalfSizeX)
-    {
-        ballPosX = 0;
-        ballPosY = 0;
-        ballVelocityY = 0;
-        ballVelocityX *= -1;
-    }
-    // End Wall collisions
-
     clearScreen(0x000000);
-
-    // Arena boundaries
-    drawRect(0, 0, arenaHalfSizeX, arenaHalfSizeY, 0x5c5c5c);
-
-    // Ball
-    drawRect(ballPosX, ballPosY, 1, 1, 0xffffff);
-
-    drawRect(50, player1PosY, 2.5, 12, 0xffffff);
-    drawRect(-50, player2PosY, 2.5, 12, 0xffffff);
+    // Do midpoint line first?
+    drawCirclePix(0.0, 0.0, 10.0, 0x5c5c5c);
 }
