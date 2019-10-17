@@ -65,6 +65,49 @@ void drawRect(float x, float y, float halfSizeX, float halfSizeY, uint32_t color
     drawRectPix(x0, y0, x1, y1, color);
 }
 
+void drawLine(int x0, int y0, int x1, int y1, uint32_t color)
+{
+    int dx, dy, p, x, y;
+    int tmp;
+    if(x1 <= x0)
+    {
+        tmp = x0;
+        x0 = x1;
+        x1 = tmp;
+    }
+
+    if(y1 <= y0)
+    {
+        tmp = y0;
+        y0 = y1;
+        y1 = tmp;
+    }
+
+    dx = x1 - x0;
+    dy = y1 - y0;
+
+    x = x0;
+    y = y0;
+
+    p = 2 * dy - dx;
+
+    while(x < x1)
+    {
+        if(p >= 0)
+        {
+            drawRect((float)x, (float)y, 0.5, 0.5, color);
+            y = y + 1;
+            p = p + 2 * dy - 2 * dx;
+        }
+        else
+        {
+            drawRect((float)x, (float)y, 0.5, 0.5, color);
+            p = p + 2 * dy;
+        }
+        x = x + 1;
+    }
+}
+
 #include <math.h>
 void drawCirclePix(float m, float n, float radius, uint32_t color)
 {
@@ -78,49 +121,98 @@ void drawCirclePix(float m, float n, float radius, uint32_t color)
     // }
 
     // works
-    // for(int y = -radius; y <= radius; y++)
+    for(float y = -radius; y <= radius; y+=0.1)
+    {
+        for(float x = -radius; x <= radius; x+=0.1)
+        {
+            if(x*x + y*y <= radius*radius)
+            {
+                drawRect((float)x, (float)y, 0.1, 0.1, color);
+            }
+        }
+    }
+
+
+    // works
+    // float x = radius, y = 0.0;
+
+    // int P = 1 - radius;
+    // while(x > y)
     // {
-    //     for(int x = -radius; x <= radius; x++)
+    //     y++;
+
+    //     if(P <= 0)
     //     {
-    //         if(x*x + y*y <= radius*radius + radius*0.8f)
-    //         {
-    //             drawRect((float)x, (float)y, 1.0, 1.0, color);
-    //         }
+    //         P = P + 2*y + 1;
+    //     }
+    //     else
+    //     {
+    //         x--;
+    //         P = P + 2*y - 2*x + 1;
+    //     }
+
+    //     if(x < y)
+    //     {
+    //         break;
+    //     }
+    //     drawRect(x, y, 1.0, 1.0, color);
+    //     drawRect(-x, y, 1.0, 1.0, color);
+    //     drawRect(x, -y, 1.0, 1.0, color);
+    //     drawRect(-x, -y, 1.0, 1.0, color);
+
+    //     if(x != y)
+    //     {
+    //         drawRect(y, x, 1.0, 1.0, color);
+    //         drawRect(-y, x, 1.0, 1.0, color);
+    //         drawRect(y, -x, 1.0, 1.0, color);
+    //         drawRect(-y, -x, 1.0, 1.0, color);
     //     }
     // }
 
-    float x = radius, y = 0.0;
+    // int x = radius, y = 0;
 
-    int P = 1 - radius;
-    while(x > y)
+    // int P = 1 - radius;
+    // while(x > y)
+    // {
+    //     y++;
+
+    //     if(P <= 0)
+    //     {
+    //         P = P + 2*y + 1;
+    //     }
+    //     else
+    //     {
+    //         x--;
+    //         P = P + 2*y - 2*x + 1;
+    //     }
+
+    //     // if(x < y)
+    //     // {
+    //     //     break;
+    //     // }
+    //     drawLine(-x, y, x, -y, color);
+    //     drawLine(x, y, -x, -y, color);
+
+    //     if(x != y)
+    //     {
+    //         drawLine(-y, x, y, -x, color);
+    //         drawLine(y, x, -y, -x, color);
+    //     }
+    // }
+}
+
+void drawRing(float m, float n, float radius, uint32_t color)
+{
+    float distance;
+    for(float y = -radius; y <= 0; y+=0.1)
     {
-        y++;
-
-        if(P <= 0)
+        for(float x = -radius; x <= radius; x+=0.1)
         {
-            P = P + 2*y + 1;
-        }
-        else
-        {
-            x--;
-            P = P + 2*y - 2*x + 1;
-        }
-
-        if(x < y)
-        {
-            break;
-        }
-        drawRect(x, y, 1.0, 1.0, color);
-        drawRect(-x, y, 1.0, 1.0, color);
-        drawRect(x, -y, 1.0, 1.0, color);
-        drawRect(-x, -y, 1.0, 1.0, color);
-
-        if(x != y)
-        {
-            drawRect(y, x, 1.0, 1.0, color);
-            drawRect(-y, x, 1.0, 1.0, color);
-            drawRect(y, -x, 1.0, 1.0, color);
-            drawRect(-y, -x, 1.0, 1.0, color);
+            distance = x*x + y*y;
+            if((distance <= radius*radius) && (distance > radius*(radius-4)))
+            {
+                drawRect((float)x, (float)y, 0.1, 0.1, color);
+            }
         }
     }
 }
@@ -261,5 +353,10 @@ void gameUpdateAndRender(struct Input *input, float dt)
 {
     clearScreen(0x000000);
     // Do midpoint line first?
-    drawCirclePix(0.0, 0.0, 10.0, 0x5c5c5c);
+    // drawCirclePix(0.0, 0.0, 20.0, 0x5c5c5c);
+    drawRing(0.0, 0.0, 20.0, 0x5c5c5c);
+    // drawLine(-10, 1, 10, -1, 0x5c5c5c);
+    // drawLine(-10, -1, 10, 1, 0x5c5c5c);
+    // void drawLine(int x0, int y0, int x1, int y1, uint32_t color)
+    // drawLine(5, 7, 0, 0, 0x5c5c5c);
 }
