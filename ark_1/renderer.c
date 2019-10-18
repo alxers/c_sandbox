@@ -201,7 +201,7 @@ void drawCirclePix(float m, float n, float radius, uint32_t color)
     // }
 }
 
-void drawRing(float m, float n, float radius, uint32_t color)
+void drawRing(int theta, float radius, uint32_t color)
 {
     float distance;
     for(float y = -radius; y <= 0; y+=0.1)
@@ -211,7 +211,9 @@ void drawRing(float m, float n, float radius, uint32_t color)
             distance = x*x + y*y;
             if((distance <= radius*radius) && (distance > radius*(radius-4)))
             {
-                drawRect((float)x, (float)y, 0.1, 0.1, color);
+                float x1 = x * cosf(theta) - y * sinf(theta);
+                float y1 = x * sinf(theta) - y * cosf(theta);
+                drawRect(x1, y1, 0.1, 0.1, color);
             }
         }
     }
@@ -354,9 +356,22 @@ void gameUpdateAndRender(struct Input *input, float dt)
     clearScreen(0x000000);
     // Do midpoint line first?
     // drawCirclePix(0.0, 0.0, 20.0, 0x5c5c5c);
-    drawRing(0.0, 0.0, 20.0, 0x5c5c5c);
+    // drawRing(0.0, 0.0, 20.0, 0x5c5c5c);
     // drawLine(-10, 1, 10, -1, 0x5c5c5c);
     // drawLine(-10, -1, 10, 1, 0x5c5c5c);
     // void drawLine(int x0, int y0, int x1, int y1, uint32_t color)
     // drawLine(5, 7, 0, 0, 0x5c5c5c);
+
+    //=========================
+    int theta = 0;
+    if(isDown(DOWN))
+    {
+        theta -= 10;
+    }
+
+    if(isDown(UP))
+    {
+        theta += 10;
+    }
+    drawRing(theta, 20.0, 0x5c5c5c);
 }
