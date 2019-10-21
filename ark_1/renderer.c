@@ -109,111 +109,131 @@ void drawLine(int x0, int y0, int x1, int y1, uint32_t color)
 }
 
 #include <math.h>
-void drawCirclePix(float m, float n, float radius, uint32_t color)
+// void drawCirclePix(float m, float n, float radius, uint32_t color)
+// {
+
+//     // works
+//     // for(int i = 0; i < 360; i++)
+//     // {
+//     //     x = radius * cosf(i);
+//     //     y = radius * sinf(i);
+//     //     drawRect(x, y, 0.1, 0.1, color);
+//     // }
+
+//     // works
+//     for(float y = -radius; y <= radius; y+=0.1)
+//     {
+//         for(float x = -radius; x <= radius; x+=0.1)
+//         {
+//             if(x*x + y*y <= radius*radius)
+//             {
+//                 drawRect((float)x, (float)y, 0.1, 0.1, color);
+//             }
+//         }
+//     }
+
+
+//     // works
+//     // float x = radius, y = 0.0;
+
+//     // int P = 1 - radius;
+//     // while(x > y)
+//     // {
+//     //     y++;
+
+//     //     if(P <= 0)
+//     //     {
+//     //         P = P + 2*y + 1;
+//     //     }
+//     //     else
+//     //     {
+//     //         x--;
+//     //         P = P + 2*y - 2*x + 1;
+//     //     }
+
+//     //     if(x < y)
+//     //     {
+//     //         break;
+//     //     }
+//     //     drawRect(x, y, 1.0, 1.0, color);
+//     //     drawRect(-x, y, 1.0, 1.0, color);
+//     //     drawRect(x, -y, 1.0, 1.0, color);
+//     //     drawRect(-x, -y, 1.0, 1.0, color);
+
+//     //     if(x != y)
+//     //     {
+//     //         drawRect(y, x, 1.0, 1.0, color);
+//     //         drawRect(-y, x, 1.0, 1.0, color);
+//     //         drawRect(y, -x, 1.0, 1.0, color);
+//     //         drawRect(-y, -x, 1.0, 1.0, color);
+//     //     }
+//     // }
+
+//     // int x = radius, y = 0;
+
+//     // int P = 1 - radius;
+//     // while(x > y)
+//     // {
+//     //     y++;
+
+//     //     if(P <= 0)
+//     //     {
+//     //         P = P + 2*y + 1;
+//     //     }
+//     //     else
+//     //     {
+//     //         x--;
+//     //         P = P + 2*y - 2*x + 1;
+//     //     }
+
+//     //     // if(x < y)
+//     //     // {
+//     //     //     break;
+//     //     // }
+//     //     drawLine(-x, y, x, -y, color);
+//     //     drawLine(x, y, -x, -y, color);
+
+//     //     if(x != y)
+//     //     {
+//     //         drawLine(-y, x, y, -x, color);
+//     //         drawLine(y, x, -y, -x, color);
+//     //     }
+//     // }
+// }
+#define PI 3.1415926
+void drawRing(float theta, float radius, uint32_t color)
 {
-
-    // works
-    // for(int i = 0; i < 360; i++)
-    // {
-    //     x = radius * cosf(i);
-    //     y = radius * sinf(i);
-    //     drawRect(x, y, 0.1, 0.1, color);
-    // }
-
-    // works
-    for(float y = -radius; y <= radius; y+=0.1)
+    theta = theta * PI/180.0;
+    float distance;
+    // float x1 = x * cosf(theta) - y * sinf(theta);
+    // float y1 = x * sinf(theta) - y * cosf(theta);
+    for(float y = -radius; y <= 0; y+=0.1)
     {
-        for(float x = -radius; x <= radius; x+=0.1)
+        for(float x = -radius/2; x <= radius/2; x+=0.1)
         {
-            if(x*x + y*y <= radius*radius)
+            distance = x*x + y*y;
+            if((distance <= radius*radius) && (distance > radius*(radius-4)))
             {
-                drawRect((float)x, (float)y, 0.1, 0.1, color);
+                float y1 = y + 10;
+                float x1 = x * cosf(theta) - y * sinf(theta);
+                y1 = x * sinf(theta) + y * cosf(theta);
+                drawRect(x1, y1, 0.1, 0.1, color);
             }
         }
     }
-
-
-    // works
-    // float x = radius, y = 0.0;
-
-    // int P = 1 - radius;
-    // while(x > y)
-    // {
-    //     y++;
-
-    //     if(P <= 0)
-    //     {
-    //         P = P + 2*y + 1;
-    //     }
-    //     else
-    //     {
-    //         x--;
-    //         P = P + 2*y - 2*x + 1;
-    //     }
-
-    //     if(x < y)
-    //     {
-    //         break;
-    //     }
-    //     drawRect(x, y, 1.0, 1.0, color);
-    //     drawRect(-x, y, 1.0, 1.0, color);
-    //     drawRect(x, -y, 1.0, 1.0, color);
-    //     drawRect(-x, -y, 1.0, 1.0, color);
-
-    //     if(x != y)
-    //     {
-    //         drawRect(y, x, 1.0, 1.0, color);
-    //         drawRect(-y, x, 1.0, 1.0, color);
-    //         drawRect(y, -x, 1.0, 1.0, color);
-    //         drawRect(-y, -x, 1.0, 1.0, color);
-    //     }
-    // }
-
-    // int x = radius, y = 0;
-
-    // int P = 1 - radius;
-    // while(x > y)
-    // {
-    //     y++;
-
-    //     if(P <= 0)
-    //     {
-    //         P = P + 2*y + 1;
-    //     }
-    //     else
-    //     {
-    //         x--;
-    //         P = P + 2*y - 2*x + 1;
-    //     }
-
-    //     // if(x < y)
-    //     // {
-    //     //     break;
-    //     // }
-    //     drawLine(-x, y, x, -y, color);
-    //     drawLine(x, y, -x, -y, color);
-
-    //     if(x != y)
-    //     {
-    //         drawLine(-y, x, y, -x, color);
-    //         drawLine(y, x, -y, -x, color);
-    //     }
-    // }
 }
 
-void drawRing(int theta, float radius, uint32_t color)
+void drawRingField(float radius, uint32_t color)
 {
     float distance;
-    for(float y = -radius; y <= 0; y+=0.1)
+    for(float y = -radius; y <= radius; y+=0.1)
     {
         for(float x = -radius; x <= radius; x+=0.1)
         {
             distance = x*x + y*y;
             if((distance <= radius*radius) && (distance > radius*(radius-4)))
             {
-                float x1 = x * cosf(theta) - y * sinf(theta);
-                float y1 = x * sinf(theta) - y * cosf(theta);
-                drawRect(x1, y1, 0.1, 0.1, color);
+                drawRect(x, y, 0.1, 0.1, color);
             }
         }
     }
@@ -243,6 +263,27 @@ void playerUpdate(float *playerPosY, float *playerVelocity, float playerAccelera
     playerAcceleration -= *playerVelocity * 10.0;
 
     *playerPosY = *playerPosY + *playerVelocity * dt + (playerAcceleration * dt * dt) / 2.0;
+    *playerVelocity = *playerVelocity + playerAcceleration * dt;
+
+    if(*playerPosY + playerHalfSizeY > arenaHalfSizeY)
+    {
+        *playerPosY = arenaHalfSizeY - playerHalfSizeY;
+        *playerVelocity *= -0.7;
+    }
+    else if(*playerPosY - playerHalfSizeY < -arenaHalfSizeY)
+    {
+        *playerPosY = -arenaHalfSizeY + playerHalfSizeY;
+        *playerVelocity *= -0.7;
+    }
+}
+
+float player1Theta = 0.0;
+void playerUpdate2(float *playerPosY, int *player1Theta, float *playerVelocity, float playerAcceleration ,float dt)
+{
+    // Add friction
+    playerAcceleration -= *playerVelocity * 10.0;
+
+    *playerPosY = *playerPosY*(cosf(*player1Theta)) + *playerVelocity * dt + (playerAcceleration * dt * dt) / 2.0;
     *playerVelocity = *playerVelocity + playerAcceleration * dt;
 
     if(*playerPosY + playerHalfSizeY > arenaHalfSizeY)
@@ -353,6 +394,7 @@ void playerUpdate(float *playerPosY, float *playerVelocity, float playerAccelera
 
 void gameUpdateAndRender(struct Input *input, float dt)
 {
+    float player1Acceleration = 0.0;
     clearScreen(0x000000);
     // Do midpoint line first?
     // drawCirclePix(0.0, 0.0, 20.0, 0x5c5c5c);
@@ -363,15 +405,17 @@ void gameUpdateAndRender(struct Input *input, float dt)
     // drawLine(5, 7, 0, 0, 0x5c5c5c);
 
     //=========================
-    int theta = 0;
+
     if(isDown(DOWN))
     {
-        theta -= 10;
+        player1Theta -= 1;
     }
 
     if(isDown(UP))
     {
-        theta += 10;
+        player1Theta += 1;
     }
-    drawRing(theta, 20.0, 0x5c5c5c);
+    // playerUpdate2(&player1PosY, &player1Theta, &player1Velocity, player1Acceleration, dt);
+    drawRingField(20.0, 0x5d5d5d);
+    drawRing(player1Theta, 20.0, 0xffffff);
 }
