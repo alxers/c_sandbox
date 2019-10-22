@@ -201,7 +201,7 @@ void drawLine(int x0, int y0, int x1, int y1, uint32_t color)
 //     // }
 // }
 #define PI 3.1415926
-void drawRing(float theta, float radius, uint32_t color)
+void drawRingPlayer1(float theta, float radius, uint32_t color)
 {
     theta = theta * PI/180.0;
     float distance;
@@ -223,17 +223,55 @@ void drawRing(float theta, float radius, uint32_t color)
     }
 }
 
-void drawRingField(float radius, uint32_t color)
+void drawRingPlayer2(float theta, float radius, uint32_t color)
+{
+    theta = theta * PI/180.0;
+    float distance;
+    for(float y = 0; y <= radius; y+=0.1)
+    {
+        for(float x = -radius/2; x <= radius/2; x+=0.1)
+        {
+            distance = x*x + y*y;
+            if((distance <= radius*radius) && (distance > radius*(radius-4)))
+            {
+                float y1 = y + 10;
+                float x1 = x * cosf(theta) - y * sinf(theta);
+                y1 = x * sinf(theta) + y * cosf(theta);
+                drawRect(x1, y1, 0.1, 0.1, color);
+            }
+        }
+    }
+}
+
+void drawRingF(float x1, float y1, float radius, uint32_t color)
 {
     float distance;
     for(float y = -radius; y <= radius; y+=0.1)
     {
         for(float x = -radius; x <= radius; x+=0.1)
         {
-            distance = x*x + y*y;
-            if((distance <= radius*radius) && (distance > radius*(radius-4)))
+            // distance = x*x + y*y;
+            distance = (x-x1)*(x-x1) + (y-y1)*(y-y1);
+            if(distance <= radius*radius)
             {
-                drawRect(x, y, 0.1, 0.1, color);
+                drawRect(x-x1, y-y1, 0.1, 0.1, color);
+            }
+        }
+    }
+}
+
+void drawRingB(float x1, float y1, float radius, uint32_t color)
+{
+    float distance;
+    for(float y = -radius; y <= radius; y+=0.1)
+    {
+        for(float x = -radius; x <= radius; x+=0.1)
+        {
+            // distance = x*x + y*y;
+            distance = (x-x1)*(x-x1) + (y-y1)*(y-y1);
+            if(distance <= radius*radius)
+            {
+                drawRect((x-x1), (y-y1), 0.1, 0.1, color);
             }
         }
     }
@@ -254,7 +292,7 @@ float playerHalfSizeX = 2.5;
 float playerHalfSizeY = 12;
 
 // Ball
-float ballPosX, ballPosY, ballVelocityX = 100, ballVelocityY;
+float ballPosX=0, ballPosY=0, ballVelocityX = 0, ballVelocityY=-1;
 float ballHalfSize = 1;
 
 void playerUpdate(float *playerPosY, float *playerVelocity, float playerAcceleration ,float dt)
@@ -278,6 +316,7 @@ void playerUpdate(float *playerPosY, float *playerVelocity, float playerAccelera
 }
 
 float player1Theta = 0.0;
+float player2Theta = 0.0;
 void playerUpdate2(float *playerPosY, int *player1Theta, float *playerVelocity, float playerAcceleration ,float dt)
 {
     // Add friction
@@ -406,16 +445,36 @@ void gameUpdateAndRender(struct Input *input, float dt)
 
     //=========================
 
-    if(isDown(DOWN))
+    if(isDown(LEFT))
     {
         player1Theta -= 1;
     }
 
-    if(isDown(UP))
+    if(isDown(RIGHT))
     {
         player1Theta += 1;
     }
+
+    if(isDown(D_BTN))
+    {
+        player2Theta -= 1;
+    }
+
+    if(isDown(A_BTN))
+    {
+        player2Theta += 1;
+    }
+
     // playerUpdate2(&player1PosY, &player1Theta, &player1Velocity, player1Acceleration, dt);
-    drawRingField(20.0, 0x5d5d5d);
-    drawRing(player1Theta, 20.0, 0xffffff);
+    
+
+    ballPosX += ballVelocityX * dt;
+    ballPosY += ballVelocityY * dt;
+
+    // Field
+    drawRingF(0, 0, 40.0, 0x5d5d5d);
+    drawRingPlayer1(player1Theta, 35.0, 0x0c0ce6);
+    drawRingPlayer2(player2Theta, 35.0, 0x9e1c32);
+    // Ball
+    drawRingB((float)ballPosX, (float)ballPosY, 1.0, 0x009688);
 }
