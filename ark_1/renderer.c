@@ -267,11 +267,10 @@ void drawRingB(float x1, float y1, float radius, uint32_t color)
     {
         for(float x = -radius; x <= radius; x+=0.1)
         {
-            // distance = x*x + y*y;
-            distance = (x-x1)*(x-x1) + (y-y1)*(y-y1);
+            distance = x*x + y*y;
             if(distance <= radius*radius)
             {
-                drawRect((x-x1), (y-y1), 0.1, 0.1, color);
+                drawRect(x-x1, y-y1, 0.1, 0.1, color);
             }
         }
     }
@@ -292,7 +291,7 @@ float playerHalfSizeX = 2.5;
 float playerHalfSizeY = 12;
 
 // Ball
-float ballPosX=0, ballPosY=0, ballVelocityX = 0, ballVelocityY=-1;
+float ballPosX=0, ballPosY=0, ballVelocityX = 0, ballVelocityY=-10;
 float ballHalfSize = 1;
 
 void playerUpdate(float *playerPosY, float *playerVelocity, float playerAcceleration ,float dt)
