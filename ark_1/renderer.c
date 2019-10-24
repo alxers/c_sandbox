@@ -201,28 +201,31 @@ void drawLine(int x0, int y0, int x1, int y1, uint32_t color)
 //     // }
 // }
 #define PI 3.1415926
+
+// Circle center coordinates are needed for collision test
+float player1X;
+float player1Y;
 void drawRingPlayer1(float theta, float radius, uint32_t color)
 {
     theta = theta * PI/180.0;
     float distance;
-    // float x1 = x * cosf(theta) - y * sinf(theta);
-    // float y1 = x * sinf(theta) - y * cosf(theta);
     for(float y = -radius; y <= 0; y+=0.1)
     {
         for(float x = -radius/2; x <= radius/2; x+=0.1)
         {
             distance = x*x + y*y;
-            if((distance <= radius*radius) && (distance > radius*(radius-4)))
+            if((distance <= radius*radius) && (distance > radius*(radius-1)))
             {
-                float y1 = y + 10;
-                float x1 = x * cosf(theta) - y * sinf(theta);
-                y1 = x * sinf(theta) + y * cosf(theta);
-                drawRect(x1, y1, 0.1, 0.1, color);
+                player1X = x * cosf(theta) - y * sinf(theta);
+                player1Y = x * sinf(theta) + y * cosf(theta);
+                drawRect(player1X, player1Y, 0.1, 0.1, color);
             }
         }
     }
 }
 
+float player2X;
+float player2Y;
 void drawRingPlayer2(float theta, float radius, uint32_t color)
 {
     theta = theta * PI/180.0;
@@ -234,10 +237,9 @@ void drawRingPlayer2(float theta, float radius, uint32_t color)
             distance = x*x + y*y;
             if((distance <= radius*radius) && (distance > radius*(radius-4)))
             {
-                float y1 = y + 10;
-                float x1 = x * cosf(theta) - y * sinf(theta);
-                y1 = x * sinf(theta) + y * cosf(theta);
-                drawRect(x1, y1, 0.1, 0.1, color);
+                player2X = x * cosf(theta) - y * sinf(theta);
+                player2Y = x * sinf(theta) + y * cosf(theta);
+                drawRect(player2X, player2Y, 0.1, 0.1, color);
             }
         }
     }
@@ -276,6 +278,21 @@ void drawRingB(float x1, float y1, float radius, uint32_t color)
     }
 }
 
+int circleToCircleCollide(float c1Radius, float c2Radius, float c1X, float c1Y)
+{
+    float centerDistance = sqrt((c1X - (-player2X))*(c1X - (-player2X)) +
+                            (c1Y - (-player2Y))*(c1Y - (-player2Y)));
+
+    if(centerDistance < (c1Radius + c2Radius))
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 // Game
 #define isDown(btn) (input->buttons[btn].isDown)
 
@@ -291,7 +308,7 @@ float playerHalfSizeX = 2.5;
 float playerHalfSizeY = 12;
 
 // Ball
-float ballPosX=0, ballPosY=0, ballVelocityX = 0, ballVelocityY=-10;
+float ballPosX=0, ballPosY=0, ballVelocityX = 0, ballVelocityY=-5;
 float ballHalfSize = 1;
 
 void playerUpdate(float *playerPosY, float *playerVelocity, float playerAcceleration ,float dt)
@@ -429,7 +446,7 @@ void playerUpdate2(float *playerPosY, int *player1Theta, float *playerVelocity, 
 //     drawRect(50, player1PosY, 2.5, 12, 0xffffff);
 //     drawRect(-50, player2PosY, 2.5, 12, 0xffffff);
 // }
-
+int color = 0x5d5d5d;
 void gameUpdateAndRender(struct Input *input, float dt)
 {
     float player1Acceleration = 0.0;
@@ -470,8 +487,13 @@ void gameUpdateAndRender(struct Input *input, float dt)
     ballPosX += ballVelocityX * dt;
     ballPosY += ballVelocityY * dt;
 
+    if(circleToCircleCollide(2.0, 4.0, (float)ballPosX, (float)ballPosY))
+    {
+       color = 0xffffff;
+    }
+
     // Field
-    drawRingF(0, 0, 40.0, 0x5d5d5d);
+    drawRingF(0, 0, 40.0, color);
     drawRingPlayer1(player1Theta, 35.0, 0x0c0ce6);
     drawRingPlayer2(player2Theta, 35.0, 0x9e1c32);
     // Ball
