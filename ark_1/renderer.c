@@ -225,7 +225,7 @@ void drawRingPlayer1(float theta, float radius, uint32_t color)
 }
 
 float player2X;
-float player2Y;
+float player2Y = -35;
 void drawRingPlayer2(float theta, float radius, uint32_t color)
 {
     theta = theta * PI/180.0;
