@@ -65,48 +65,48 @@ void drawRect(float x, float y, float halfSizeX, float halfSizeY, uint32_t color
     drawRectPix(x0, y0, x1, y1, color);
 }
 
-void drawLine(int x0, int y0, int x1, int y1, uint32_t color)
-{
-    int dx, dy, p, x, y;
-    int tmp;
-    if(x1 <= x0)
-    {
-        tmp = x0;
-        x0 = x1;
-        x1 = tmp;
-    }
+// void drawLine(int x0, int y0, int x1, int y1, uint32_t color)
+// {
+//     int dx, dy, p, x, y;
+//     int tmp;
+//     if(x1 <= x0)
+//     {
+//         tmp = x0;
+//         x0 = x1;
+//         x1 = tmp;
+//     }
 
-    if(y1 <= y0)
-    {
-        tmp = y0;
-        y0 = y1;
-        y1 = tmp;
-    }
+//     if(y1 <= y0)
+//     {
+//         tmp = y0;
+//         y0 = y1;
+//         y1 = tmp;
+//     }
 
-    dx = x1 - x0;
-    dy = y1 - y0;
+//     dx = x1 - x0;
+//     dy = y1 - y0;
 
-    x = x0;
-    y = y0;
+//     x = x0;
+//     y = y0;
 
-    p = 2 * dy - dx;
+//     p = 2 * dy - dx;
 
-    while(x < x1)
-    {
-        if(p >= 0)
-        {
-            drawRect((float)x, (float)y, 0.5, 0.5, color);
-            y = y + 1;
-            p = p + 2 * dy - 2 * dx;
-        }
-        else
-        {
-            drawRect((float)x, (float)y, 0.5, 0.5, color);
-            p = p + 2 * dy;
-        }
-        x = x + 1;
-    }
-}
+//     while(x < x1)
+//     {
+//         if(p >= 0)
+//         {
+//             drawRect((float)x, (float)y, 0.5, 0.5, color);
+//             y = y + 1;
+//             p = p + 2 * dy - 2 * dx;
+//         }
+//         else
+//         {
+//             drawRect((float)x, (float)y, 0.5, 0.5, color);
+//             p = p + 2 * dy;
+//         }
+//         x = x + 1;
+//     }
+// }
 
 #include <math.h>
 // void drawCirclePix(float m, float n, float radius, uint32_t color)
@@ -252,8 +252,8 @@ void drawRingF(float x1, float y1, float radius, uint32_t color)
     {
         for(float x = -radius; x <= radius; x+=0.1)
         {
-            // distance = x*x + y*y;
-            distance = (x-x1)*(x-x1) + (y-y1)*(y-y1);
+            distance = x*x + y*y;
+            // distance = (x-x1)*(x-x1) + (y-y1)*(y-y1);
             if(distance <= radius*radius)
             {
                 drawRect(x-x1, y-y1, 0.1, 0.1, color);
@@ -280,8 +280,8 @@ void drawRingB(float x1, float y1, float radius, uint32_t color)
 
 int circleToCircleCollide(float c1Radius, float c2Radius, float c1X, float c1Y)
 {
-    float centerDistance = sqrt((c1X - (-player2X))*(c1X - (-player2X)) +
-                            (c1Y - (-player2Y))*(c1Y - (-player2Y)));
+    float centerDistance = sqrt((c1X + (player2X -5))*(c1X + (player2X-5)) +
+                            (c1Y + (player2Y-10))*(c1Y + (player2Y-10)));
 
     if(centerDistance < (c1Radius + c2Radius))
     {
@@ -311,47 +311,47 @@ float playerHalfSizeY = 12;
 float ballPosX=0, ballPosY=0, ballVelocityX = 0, ballVelocityY=-5;
 float ballHalfSize = 1;
 
-void playerUpdate(float *playerPosY, float *playerVelocity, float playerAcceleration ,float dt)
-{
-    // Add friction
-    playerAcceleration -= *playerVelocity * 10.0;
+// void playerUpdate(float *playerPosY, float *playerVelocity, float playerAcceleration ,float dt)
+// {
+//     // Add friction
+//     playerAcceleration -= *playerVelocity * 10.0;
 
-    *playerPosY = *playerPosY + *playerVelocity * dt + (playerAcceleration * dt * dt) / 2.0;
-    *playerVelocity = *playerVelocity + playerAcceleration * dt;
+//     *playerPosY = *playerPosY + *playerVelocity * dt + (playerAcceleration * dt * dt) / 2.0;
+//     *playerVelocity = *playerVelocity + playerAcceleration * dt;
 
-    if(*playerPosY + playerHalfSizeY > arenaHalfSizeY)
-    {
-        *playerPosY = arenaHalfSizeY - playerHalfSizeY;
-        *playerVelocity *= -0.7;
-    }
-    else if(*playerPosY - playerHalfSizeY < -arenaHalfSizeY)
-    {
-        *playerPosY = -arenaHalfSizeY + playerHalfSizeY;
-        *playerVelocity *= -0.7;
-    }
-}
+//     if(*playerPosY + playerHalfSizeY > arenaHalfSizeY)
+//     {
+//         *playerPosY = arenaHalfSizeY - playerHalfSizeY;
+//         *playerVelocity *= -0.7;
+//     }
+//     else if(*playerPosY - playerHalfSizeY < -arenaHalfSizeY)
+//     {
+//         *playerPosY = -arenaHalfSizeY + playerHalfSizeY;
+//         *playerVelocity *= -0.7;
+//     }
+// }
 
 float player1Theta = 0.0;
 float player2Theta = 0.0;
-void playerUpdate2(float *playerPosY, int *player1Theta, float *playerVelocity, float playerAcceleration ,float dt)
-{
-    // Add friction
-    playerAcceleration -= *playerVelocity * 10.0;
+// void playerUpdate2(float *playerPosY, int *player1Theta, float *playerVelocity, float playerAcceleration ,float dt)
+// {
+//     // Add friction
+//     playerAcceleration -= *playerVelocity * 10.0;
 
-    *playerPosY = *playerPosY*(cosf(*player1Theta)) + *playerVelocity * dt + (playerAcceleration * dt * dt) / 2.0;
-    *playerVelocity = *playerVelocity + playerAcceleration * dt;
+//     *playerPosY = *playerPosY*(cosf(*player1Theta)) + *playerVelocity * dt + (playerAcceleration * dt * dt) / 2.0;
+//     *playerVelocity = *playerVelocity + playerAcceleration * dt;
 
-    if(*playerPosY + playerHalfSizeY > arenaHalfSizeY)
-    {
-        *playerPosY = arenaHalfSizeY - playerHalfSizeY;
-        *playerVelocity *= -0.7;
-    }
-    else if(*playerPosY - playerHalfSizeY < -arenaHalfSizeY)
-    {
-        *playerPosY = -arenaHalfSizeY + playerHalfSizeY;
-        *playerVelocity *= -0.7;
-    }
-}
+//     if(*playerPosY + playerHalfSizeY > arenaHalfSizeY)
+//     {
+//         *playerPosY = arenaHalfSizeY - playerHalfSizeY;
+//         *playerVelocity *= -0.7;
+//     }
+//     else if(*playerPosY - playerHalfSizeY < -arenaHalfSizeY)
+//     {
+//         *playerPosY = -arenaHalfSizeY + playerHalfSizeY;
+//         *playerVelocity *= -0.7;
+//     }
+// }
 
 // void gameUpdateAndRender(struct Input *input, float dt)
 // {
@@ -487,9 +487,10 @@ void gameUpdateAndRender(struct Input *input, float dt)
     ballPosX += ballVelocityX * dt;
     ballPosY += ballVelocityY * dt;
 
-    if(circleToCircleCollide(2.0, 4.0, (float)ballPosX, (float)ballPosY))
+    if(circleToCircleCollide(1.0, 4.0, (float)ballPosX, (float)ballPosY))
     {
        color = 0xffffff;
+       ballVelocityY *= -1;
     }
 
     // Field
