@@ -224,8 +224,8 @@ void drawRingPlayer1(float theta, float radius, uint32_t color)
     }
 }
 
-float player2X;
-float player2Y = -35;
+float player2X=0;
+float player2Y=0;
 void drawRingPlayer2(float theta, float radius, uint32_t color)
 {
     theta = theta * PI/180.0;
@@ -244,6 +244,25 @@ void drawRingPlayer2(float theta, float radius, uint32_t color)
         }
     }
 }
+
+// void drawRingPlayer2(float theta, float radius, uint32_t color)
+// {
+//     theta = theta * PI/180.0;
+//     float distance;
+//     for(float y = 0; y <= radius; y+=0.1)
+//     {
+//         for(float x = -radius; x <= radius; x+=0.1)
+//         {
+//             distance = x*x + y*y;
+//             if((distance <= radius*radius))
+//             {
+//                 player2X = x * cosf(theta) - y * sinf(theta);
+//                 player2Y = x * sinf(theta) + y * cosf(theta);
+//                 drawRect(player2X, player2Y, 0.1, 0.1, color);
+//             }
+//         }
+//     }
+// }
 
 void drawRingF(float x1, float y1, float radius, uint32_t color)
 {
@@ -278,10 +297,27 @@ void drawRingB(float x1, float y1, float radius, uint32_t color)
     }
 }
 
+// int circleToCircleCollide(float c1Radius, float c2Radius, float c1X, float c1Y)
+// {
+//     float centerDistance = sqrt((c1X + (player2X))*(c1X + (player2X)) +
+//                             (c1Y + (player2Y))*(c1Y + (player2Y)));
+
+//     if(centerDistance < (c1Radius + c2Radius))
+//     {
+//         return 1;
+//     }
+//     else
+//     {
+//         return 0;
+//     }
+// }
+
+// circleToCircleCollide(1.0, 35.0, (float)ballPosX, (float)ballPosY)
 int circleToCircleCollide(float c1Radius, float c2Radius, float c1X, float c1Y)
 {
-    float centerDistance = sqrt((c1X + (player2X -5))*(c1X + (player2X-5)) +
-                            (c1Y + (player2Y-10))*(c1Y + (player2Y-10)));
+    float dx = (c1X + c1Radius);
+    float dy = (c1Y + c1Radius);
+    float centerDistance = sqrt(dx * dx + dy * dy);
 
     if(centerDistance < (c1Radius + c2Radius))
     {
@@ -487,10 +523,14 @@ void gameUpdateAndRender(struct Input *input, float dt)
     ballPosX += ballVelocityX * dt;
     ballPosY += ballVelocityY * dt;
 
-    if(circleToCircleCollide(1.0, 4.0, (float)ballPosX, (float)ballPosY))
+    if(!circleToCircleCollide(1.0, 35.0, (float)ballPosX, (float)ballPosY))
     {
        color = 0xffffff;
        ballVelocityY *= -1;
+    }
+    else
+    {
+        color = 0x5d5d5d;
     }
 
     // Field
