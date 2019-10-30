@@ -226,6 +226,9 @@ void drawRingPlayer1(float theta, float radius, uint32_t color)
 
 float player2X=0;
 float player2Y=0;
+
+float player2XLeftEdge;
+float player2XRightEdge;
 void drawRingPlayer2(float theta, float radius, uint32_t color)
 {
     theta = theta * PI/180.0;
@@ -234,9 +237,17 @@ void drawRingPlayer2(float theta, float radius, uint32_t color)
     {
         for(float x = -radius/2; x <= radius/2; x+=0.1)
         {
+            // Edges for collision test
+            player2XLeftEdge = -radius/2;
+            player2XRightEdge = radius/2;
+
             distance = x*x + y*y;
             if((distance <= radius*radius) && (distance > radius*(radius-4)))
             {
+                // Recalculate edges
+                player2XLeftEdge = -radius/2 * cosf(theta) - y * sinf(theta);
+                player2XRightEdge = radius/2 * sinf(theta) - y * cosf(theta);
+
                 player2X = x * cosf(theta) - y * sinf(theta);
                 player2Y = x * sinf(theta) + y * cosf(theta);
                 drawRect(player2X, player2Y, 0.1, 0.1, color);
@@ -319,13 +330,26 @@ int circleToCircleCollide(float c1Radius, float c2Radius, float c1X, float c1Y)
     float dy = (c1Y + c1Radius);
     float centerDistance = sqrt(dx * dx + dy * dy);
 
+    // int outOfBounds = c1X < player2XLeftEdge || c1X > player2XRightEdge;
+    int outOfBounds = player2XLeftEdge < c1X < player2XRightEdge;
+
+    // Inverse collision
     if(centerDistance < (c1Radius + c2Radius))
     {
-        return 1;
+        // Actually always collides here
+        // if(!outOfBounds)
+        // {
+        //     return 0;
+        // }
+        // else
+        // {
+        //     return 1;
+        // }
+        return 0;
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
 
@@ -523,7 +547,7 @@ void gameUpdateAndRender(struct Input *input, float dt)
     ballPosX += ballVelocityX * dt;
     ballPosY += ballVelocityY * dt;
 
-    if(!circleToCircleCollide(1.0, 35.0, (float)ballPosX, (float)ballPosY))
+    if(circleToCircleCollide(1.0, 30.0, (float)ballPosX, (float)ballPosY))
     {
        color = 0xffffff;
        ballVelocityY *= -1;
