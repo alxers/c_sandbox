@@ -246,7 +246,7 @@ void drawRingPlayer2(float theta, float radius, uint32_t color)
             {
                 // Recalculate edges
                 player2XLeftEdge = -radius/2 * cosf(theta) - y * sinf(theta);
-                player2XRightEdge = radius/2 * sinf(theta) - y * cosf(theta);
+                player2XRightEdge = radius/2 * sinf(theta) + y * cosf(theta);
 
                 player2X = x * cosf(theta) - y * sinf(theta);
                 player2Y = x * sinf(theta) + y * cosf(theta);
@@ -331,25 +331,27 @@ int circleToCircleCollide(float c1Radius, float c2Radius, float c1X, float c1Y)
     float centerDistance = sqrt(dx * dx + dy * dy);
 
     // int outOfBounds = c1X < player2XLeftEdge || c1X > player2XRightEdge;
-    int outOfBounds = player2XLeftEdge < c1X < player2XRightEdge;
+    int inBounds = player2XLeftEdge <= c1X && c1X <= player2XRightEdge;
 
     // Inverse collision
     if(centerDistance < (c1Radius + c2Radius))
     {
         // Actually always collides here
-        // if(!outOfBounds)
-        // {
-        //     return 0;
-        // }
-        // else
-        // {
-        //     return 1;
-        // }
         return 0;
     }
     else
     {
-        return 1;
+        // Out of circle's radius, but still
+        // inside left and righ edges, so colliding
+        if(inBounds)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+        // return 1;
     }
 }
 
