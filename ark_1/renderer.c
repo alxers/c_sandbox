@@ -238,16 +238,13 @@ void drawRingPlayer2(float theta, float radius, uint32_t color)
         for(float x = -radius/2; x <= radius/2; x+=0.1)
         {
             // Edges for collision test
-            player2XLeftEdge = -radius/2;
-            player2XRightEdge = radius/2;
+            // Recalculate edges
+            player2XLeftEdge = -radius/2 * cosf(theta) - 0 * sinf(theta);
+            player2XRightEdge = radius/2 * sinf(theta) + radius * cosf(theta);
 
             distance = x*x + y*y;
             if((distance <= radius*radius) && (distance > radius*(radius-4)))
             {
-                // Recalculate edges
-                player2XLeftEdge = -radius/2 * cosf(theta) - y * sinf(theta);
-                player2XRightEdge = radius/2 * sinf(theta) + y * cosf(theta);
-
                 player2X = x * cosf(theta) - y * sinf(theta);
                 player2Y = x * sinf(theta) + y * cosf(theta);
                 drawRect(player2X, player2Y, 0.1, 0.1, color);
@@ -565,4 +562,9 @@ void gameUpdateAndRender(struct Input *input, float dt)
     drawRingPlayer2(player2Theta, 35.0, 0x9e1c32);
     // Ball
     drawRingB((float)ballPosX, (float)ballPosY, 1.0, 0x009688);
+
+    // debug str
+    char strBuffer[256];
+    sprintf(strBuffer, "%.02f left edge, \t %.02f right edge\n %.02f PLAYER2Theta", player2XLeftEdge, player2XRightEdge, player2Theta);
+    OutputDebugStringA(strBuffer);
 }
