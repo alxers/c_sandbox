@@ -239,8 +239,8 @@ void drawRingPlayer2(float theta, float radius, uint32_t color)
         {
             // Edges for collision test
             // Recalculate edges
-            player2XLeftEdge = -radius/2 * cosf(theta) - 0 * sinf(theta);
-            player2XRightEdge = radius/2 * sinf(theta) + radius * cosf(theta);
+            player2XLeftEdge = (-radius/2 * cosf(theta) - radius/2 * sinf(theta)) +6;
+            player2XRightEdge = (radius/2 * cosf(theta) - radius/2 * sinf(theta)) -6;
 
             distance = x*x + y*y;
             if((distance <= radius*radius) && (distance > radius*(radius-4)))
