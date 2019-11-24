@@ -205,6 +205,9 @@ void drawRect(float x, float y, float halfSizeX, float halfSizeY, uint32_t color
 // Circle center coordinates are needed for collision test
 float player1X;
 float player1Y;
+
+float player1XLeftEdge;
+float player1XRightEdge;
 void drawRingPlayer1(float theta, float radius, uint32_t color)
 {
     theta = theta * PI/180.0;
@@ -213,6 +216,12 @@ void drawRingPlayer1(float theta, float radius, uint32_t color)
     {
         for(float x = -radius/2; x <= radius/2; x+=0.1)
         {
+            // Edges for collision test
+            // Recalculate edges
+            // Adjust by constant from both sides in order to fix edge collision
+            player1XLeftEdge = (-radius/2 * cosf(theta) - radius/2 * sinf(theta)) +5;
+            player1XRightEdge = (radius/2 * cosf(theta) - radius/2 * sinf(theta)) -5;
+
             distance = x*x + y*y;
             if((distance <= radius*radius) && (distance > radius*(radius-1)))
             {
@@ -239,8 +248,9 @@ void drawRingPlayer2(float theta, float radius, uint32_t color)
         {
             // Edges for collision test
             // Recalculate edges
-            player2XLeftEdge = (-radius/2 * cosf(theta) - radius/2 * sinf(theta)) +6;
-            player2XRightEdge = (radius/2 * cosf(theta) - radius/2 * sinf(theta)) -6;
+            // Adjust by constant from both sides in order to fix edge collision
+            player2XLeftEdge = (-radius/2 * cosf(theta) - radius/2 * sinf(theta)) +5;
+            player2XRightEdge = (radius/2 * cosf(theta) - radius/2 * sinf(theta)) -5;
 
             distance = x*x + y*y;
             if((distance <= radius*radius) && (distance > radius*(radius-4)))
@@ -323,12 +333,25 @@ void drawRingB(float x1, float y1, float radius, uint32_t color)
 // circleToCircleCollide(1.0, 35.0, (float)ballPosX, (float)ballPosY)
 int circleToCircleCollide(float c1Radius, float c2Radius, float c1X, float c1Y)
 {
+    // Coordinate O point (0, 0) is in the center of the screen
+    // So we should check ballPosY
+    // if it's positive, we check collision with the top player
+    // if negative, we check collision with the bottom player
     float dx = (c1X + c1Radius);
     float dy = (c1Y + c1Radius);
     float centerDistance = sqrt(dx * dx + dy * dy);
 
     // int outOfBounds = c1X < player2XLeftEdge || c1X > player2XRightEdge;
-    int inBounds = player2XLeftEdge <= c1X && c1X <= player2XRightEdge;
+    int inBounds;
+    // For some reason c1Y negative in the top and positive at the bottom
+    if(c1Y < 0)
+    {
+        inBounds = player2XLeftEdge <= c1X && c1X <= player2XRightEdge;
+    }
+    else
+    {
+        inBounds = player1XLeftEdge <= c1X && c1X <= player1XRightEdge;
+    }
 
     // Inverse collision
     if(centerDistance < (c1Radius + c2Radius))
@@ -348,7 +371,6 @@ int circleToCircleCollide(float c1Radius, float c2Radius, float c1X, float c1Y)
         {
             return 0;
         }
-        // return 1;
     }
 }
 
